@@ -1,4 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+# =====================================================================================
+# Projeto RR-Nexus
+# Versão: 1.0.0
+# Autor(es): Elisa / Equipe
+# Data: 02/11/2025
+# Descrição: Definição de estilo global para o frontend.
+
+# Alteração: Inserção da fonte.
+# =====================================================================================
+*/
+
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+/* 1.0 Fonte do projeto ------------------------------------------- */
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: '29LT Baseet';
+  src: url('assets/fonts/29LT Baseet.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
