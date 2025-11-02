@@ -1,12 +1,12 @@
 /*
 # =====================================================================================
 # Projeto RR-Nexus
-# Versão: 1.1.0
+# Versão: 1.2.0
 # Autor(es): Elisa / FrontEnd
 # Data: 02/11/2025
 # Descrição: Definição de estilo global para o frontend.
 
-# Alteração: Inserção da fonte, cores e fundo.
+# Alteração: Adicionando cores branco e preto.
 # =====================================================================================
 */
 
@@ -19,10 +19,11 @@ module.exports = {
   theme: {
     fontFamily: {
       'sans': ['Inter', 'sans-serif'], // 'Inter' é o novo padrão
-      'baseet': ['29LT Baseet', 'sans-serif'],
+      'baseet': ['Baseet', 'sans-serif'],
     },
     extend: {
       colors: {
+        'nexus-black': '#000000',
         'nexus-darkest': '#130220',
         'nexus-dark': '#220A35',
         'nexus-purple-deep': '#5B0772',
@@ -32,6 +33,7 @@ module.exports = {
         'nexus-pink-light': '#EBA4E6',
         'nexus-pink-pale': '#FCE8ED',
         'nexus-cream': '#FFFEE3',
+        'nexus-white': '#FFFFFF',
       },
       backgroundImage: {
         'header-gradient': "linear-gradient(to bottom, #130220, #130220, #220A35, #220A35, #220A35, #130220)",

@@ -1,0 +1,61 @@
+<!--
+# =====================================================================================
+# Projeto RR-Nexus
+# Versão: 1.0.0
+# Autor(es): Elisa / FrontEnd
+# Data: 02/11/2025
+# Descrição: Exibe informações iniciais do projeto no site.
+
+# Alteração: Criação de módulos do componente.
+# =====================================================================================
+-->
+
+
+<header class="h-screen bg-header-gradient text-nexus-cream flex flex-col p-8 md:p-12 relative overflow-hidden">
+
+  <img src="assets/images/network.svg" alt="" class="absolute top-32 left-0 w-1/3 md:w-1/4 z-0 opacity-30">
+  <img src="assets/images/network.svg" alt="" class="absolute top-0 right-0 w-1/3 md:w-1/4 z-0 opacity-30 flip-horizontal">
+
+  
+  <nav class="w-full flex justify-end z-10">
+    <button class="bg-nexus-lavender text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-inter font-semibold">
+      <span>Login</span>
+      <img src="/assets/images/perfil-white.svg" alt="Ícone de Login" class="w-5 h-5">
+    </button>
+  </nav>
+
+  
+  <main class="flex-grow flex flex-col justify-center items-center z-20">
+    
+    <div class="text-center -translate-y-24">
+      <img src="/assets/images/logo.svg" alt="Logo RR-Nexus" class="w-[500px] mx-auto">
+      <p class="font-inter text-base md:text-lg text-white font-bold tracking-widest mt-0">SESSÕES CONTÍNUAS</p>
+    </div>
+
+    <section class="flex flex-col md:flex-row items-center justify-center md:gap-x-10 w-full max-w-6xl mt-8 md:mt-12 mx-auto -translate-y-20">
+      
+      <div class="w-full md:w-1/3 flex justify-center">
+        <img src="assets/images/round-robin.svg" alt="Diagrama Round Robin" class="w-full max-w-[14rem]">
+      </div>
+
+      <div class="w-full md:w-2/3 max-w-xl mt-10 md:mt-10 relative">
+
+        <div class="bg-nexus-purple-deep bg-opacity-20 rounded-lg p-6 pt-8">
+
+          <div class="flex items-center space-x-3 absolute -top-4 left-6 z-10">
+            <h2 class="font-baseet text-xl md:text-2xl text-nexus-pink-light font-semibold">CONHEÇA NOSSO PROJETO</h2>
+            <img src="assets/images/seta.svg" alt="Seta" class="w-10">
+          </div>
+
+          <p class="text-white leading-relaxed font-inter text-sm text-justify">
+            Este projeto demonstra uma arquitetura de aplicação web distribuída, projetada para escalabilidade e alta disponibilidade. O sistema utiliza balanceamento de carga via DNS Round Robin (RR DNS) para distribuir as requisições de usuários entre três servidores de aplicação distintos.
+          </p>
+          <p class="mt-4 text-white leading-relaxed font-inter text-sm text-justify">
+            A solução implementa um mecanismo de sessão centralizada para resolver o desafio de estado. Isso garante que o usuário permaneça autenticado independentemente de qual servidor o balanceador DNS direcione sua conexão.
+          </p>
+
+        </div> </div>
+
+    </section>
+  </main>
+</header>
