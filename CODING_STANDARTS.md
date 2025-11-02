@@ -26,7 +26,7 @@ Obrigado por colaborar! Este documento define as regras e boas práticas que **t
 
    ```
    # =====================================================================================
-   # Nome do Projeto / Módulo
+   # Projeto RR-Nexus
    # Versão: x.x.x
    # Autor(es): Nome(s) / Equipe
    # Data: YYYY-MM-DD
