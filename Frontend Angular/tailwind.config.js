@@ -1,26 +1,27 @@
 /*
 # =====================================================================================
 # Projeto RR-Nexus
-# Versão: 1.0.0
+# Versão: 1.1.0
 # Autor(es): Elisa / FrontEnd
 # Data: 02/11/2025
 # Descrição: Definição de estilo global para o frontend.
 
-# Alteração: Inserção da fonte e paleta de cores.
+# Alteração: Inserção da fonte, cores e fundo.
 # =====================================================================================
 */
+
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{html,ts}", 
+    "./src/**/*.{html,ts}",
   ],
   theme: {
+    fontFamily: {
+      'sans': ['Inter', 'sans-serif'], // 'Inter' é o novo padrão
+      'baseet': ['29LT Baseet', 'sans-serif'],
+    },
     extend: {
-      fontFamily: {
-        'inter': ['Inter', 'sans-serif'],
-        'baseet': ['29LT Baseet', 'sans-serif'],
-      },
       colors: {
         'nexus-darkest': '#130220',
         'nexus-dark': '#220A35',
@@ -32,6 +33,9 @@ module.exports = {
         'nexus-pink-pale': '#FCE8ED',
         'nexus-cream': '#FFFEE3',
       },
+      backgroundImage: {
+        'header-gradient': "linear-gradient(to bottom, #130220, #130220, #220A35, #220A35, #220A35, #130220)",
+      }
     },
   },
   plugins: [],
