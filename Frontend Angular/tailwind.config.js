@@ -2,7 +2,7 @@
 # =====================================================================================
 # Projeto RR-Nexus
 # Versão: 1.0.0
-# Autor(es): Elisa / Equipe
+# Autor(es): Elisa / FrontEnd
 # Data: 02/11/2025
 # Descrição: Definição de estilo global para o frontend.
 
