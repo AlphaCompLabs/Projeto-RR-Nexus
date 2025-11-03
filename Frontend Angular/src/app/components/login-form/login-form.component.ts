@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-form',
@@ -14,6 +15,7 @@ export class LoginFormComponent {
   public username: string = '';
   public password: string = '';
   public showPassword: boolean = false;
+  public loginErrorMessage: string = '';
   public showSignUp: boolean = false;
   public signUpStep: number = 1;
   public signUpUsername: string = '';
@@ -22,18 +24,43 @@ export class LoginFormComponent {
 
   @ViewChild('passwordInput') passwordField!: ElementRef;
   @ViewChild('signUpPasswordInput') signUpPasswordField!: ElementRef;
-
-  constructor() { }
+  
+  constructor(private router: Router) { }
 
   public onLogin(): void {
+    this.loginErrorMessage = '';
+
     if (!this.username || !this.password) {
-      alert('Por favor, preencha o usuário e a senha.');
+      this.loginErrorMessage = 'Insira usuário e senha.';
       return;
     }
     
     console.log('Enviando para o backend...');
-    console.log('Usuário:', this.username);
-    console.log('Senha:', this.password);
+    const u = this.username.toLowerCase();
+    const p = this.password;
+
+    if ((u === 'aluno' || u === 'iesb') && p === '123') {
+      
+      // SUCESSO!
+      console.log('Login bem-sucedido! Navegando...');
+      
+      // 4. ADICIONE A NAVEGAÇÃO
+      // (Nós já configuramos a rota '/meu-perfil' no app.routes.ts)
+      this.router.navigate(['/meu-perfil']);
+
+    } else {
+      this.loginErrorMessage = 'Usuário ou senha não encontrado.';
+    }
+  }
+
+  // 5. ADICIONE A NOVA FUNÇÃO 'onLoginEnter'
+  /**
+   * Chamado pelo "Enter" no campo de senha do login.
+   * Simula um clique no botão "ENTRAR".
+   */
+  public onLoginEnter(event: Event, button: HTMLButtonElement): void {
+    event.preventDefault();
+    button.click();
   }
 
   public togglePasswordVisibility(): void {
