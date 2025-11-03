@@ -4,7 +4,8 @@
   "description": "Projeto de arquitetura de aplicação distribuída (3 camadas) que utiliza Round Robin DNS para balanceamento de carga. O desafio central é a implementação de uma sessão centralizada para garantir a persistência do login do usuário entre múltiplos servidores , superando a natureza 'stateless' do balanceamento DNS.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   "homepage": "https://github.com/AlphaCompLabs/Projeto-RR-Nexus#readme",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongoose": "^8.19.2"
