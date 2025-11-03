@@ -28,6 +28,7 @@ module.exports = {
         'nexus-dark': '#220A35',
         'nexus-purple-deep': '#5B0772',
         'nexus-purple': '#8C0590',
+        'nexus-purple-light': '#BE59BE',
         'nexus-magenta': '#EA1EF3',
         'nexus-lavender': '#B17BC5',
         'nexus-pink-light': '#EBA4E6',
