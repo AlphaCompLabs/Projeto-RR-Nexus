@@ -37,6 +37,7 @@ module.exports = {
       },
       backgroundImage: {
         'header-gradient': "linear-gradient(to bottom, #130220, #130220, #220A35, #220A35, #220A35, #130220)",
+        'login-gradient': "linear-gradient(to bottom, #130220, #220A35, #220A35, #220A35, #220A35)"
       }
     },
   },

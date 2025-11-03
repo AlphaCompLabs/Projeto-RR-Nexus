@@ -1,0 +1,78 @@
+<!--
+# =====================================================================================
+# Projeto RR-Nexus
+# Versão: 1.0.0
+# Autor(es): Elisa / FrontEnd
+# Data: 02/11/2025
+# Descrição: Recebe informações de login do usuário.
+
+# Alteração: Criação de módulos do componente.
+# =====================================================================================
+-->
+
+<section class="w-full bg-login-gradient py-24 px-8 relative overflow-hidden">
+
+  <img src="assets/images/network.svg" alt="" class="absolute top-8 left-0 w-1/3 md:w-1/4 z-0 opacity-20">
+  <img src="assets/images/network.svg" alt="" class="absolute bottom-8 right-0 w-1/3 md:w-1/4 z-0 opacity-20 flip-horizontal">
+
+  <div class="text-center z-10 relative">
+    <h2 class="font-baseet text-xl text-nexus-pink-light font-semibold inline-block px-4 py-2 bg-nexus-purple-deep bg-opacity-20">
+      FAÇA LOGIN PARA PARTICIPAR DESSA EXPERIÊNCIA!
+    </h2>
+  </div>
+
+  <form (ngSubmit)="onLogin()" class="relative z-10 rounded-2xl max-w-lg mx-auto mt-10 shadow-2xl overflow-hidden">
+      
+    <div class="relative bg-nexus-pink-light bg-opacity-50 px-6 p-2 flex justify-between items-center z-10">
+      <h3 class="font-baseet text-2xl text-white font-semibold pt-1">LOGIN</h3>
+      
+      <img src="assets/images/perfil-light.svg" alt="" class="w-7 h-7">
+    </div>
+
+    <div class="relative z-10 bg-nexus-purple-deep bg-opacity-50 p-8 md:p-10">
+
+      <img src="assets/images/middle-circle-dark.svg" alt="" class="absolute left-0 top-1/5 z-0 w-32 opacity-60">
+      <img src="assets/images/middle-circle-dark.svg" alt="" class="absolute right-0 top-1/5 z-0 w-32 opacity-60 flip-horizontal">
+      
+      <div class="relative z-10">
+        <div class="mt-0">
+          <label for="username" class="font-inter text-sm text-nexus-pink-light">Nome de Usuário:</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username"
+            [(ngModel)]="username"
+            class="w-full bg-nexus-cream rounded-md p-2 mt-2 text-nexus-darkest font-regular focus:outline-none focus:ring-2 focus:ring-nexus-magenta"
+            required>
+        </div>
+
+        <div class="mt-4">
+          <label for="password" class="font-inter text-sm text-nexus-pink-light">Senha:</label>
+          <div class="relative">
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              id="password" 
+              name="password"
+              [(ngModel)]="password"
+              class="w-full bg-nexus-cream rounded-md p-2 mt-2 text-nexus-darkest font-regular focus:outline-none focus:ring-2 focus:ring-nexus-magenta"
+              required>
+            <img 
+              (click)="togglePasswordVisibility()"
+              [src]="showPassword ? 'assets/images/olho-fechado.svg' : 'assets/images/olho.svg'"
+              alt="Mostrar/Ocultar senha" 
+              class="absolute right-4 top-1/2 -translate-y-[40%] w-6 cursor-pointer">
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col items-center">
+          <a href="#" class="font-inter text-sm text-nexus-lavender hover:text-nexus-magenta">Esqueci minha senha.</a>
+          <a href="#" class="font-inter text-sm text-nexus-lavender hover:text-nexus-magenta mt-1">Não possui cadastro? Cadastre-se aqui.</a>
+
+          <button type="submit" class="w-full md:w-auto bg-nexus-purple text-white font-baseet font-semibold py-3 px-10 rounded-lg mt-6 hover:bg-nexus-purple-deep transition-colors duration-300">
+            ENTRAR
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
