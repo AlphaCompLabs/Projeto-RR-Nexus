@@ -1,1 +1,65 @@
-<p>profile-form works!</p>
+<section class="w-full h-full px-12 pt-12 flex flex-col justify-end relative overflow-hidden">
+
+  <div class="relative z-10 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl w-full flex flex-col min-h-[90vh]">
+
+    <div class="bg-nexus-purple bg-opacity-80 p-4">
+      <h3 class="font-baseet text-xl text-white font-semibold h-7 flex items-center pt-1">PERFIL</h3>
+    </div>
+
+    <div class="bg-nexus-darkest p-8 md:p-12 relative overflow-hidden flex-grow">
+      
+      <img src="assets/images/network.svg" alt="" class="absolute bottom-0 left-0 w-1/2 md:w-1/4 z-0 opacity-50">
+      <img src="assets/images/network.svg" alt="" class="absolute top-0 right-0 w-1/2 md:w-1/4 z-0 opacity-50 flip-horizontal">
+
+      <div class="relative z-10">
+
+        <div class="flex items-center gap-5">
+          <img src="assets/images/profile.svg" alt="Ícone de Perfil" class="w-20 h-20 opacity-80">
+          <div>
+            <h2 class="font-baseet text-3xl text-nexus-pink-light font-semibold">{{ username }}</h2>
+            <p class="font-inter text-sm text-nexus-white font-semibold">{{ userId }}</p>
+          </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 gap-4">
+          <div>
+            <label class="font-inter text-sm text-nexus-lavender">Código da Sessão:</label>
+            <input 
+              type="text" 
+              [value]="sessionId"
+              readonly 
+              class="w-full bg-nexus-cream rounded-md p-3 mt-2 text-nexus-darkest font-semibold focus:outline-none">
+          </div>
+          <div>
+            <label class="font-inter text-sm text-nexus-lavender">Servidor:</label>
+            <input 
+              type="text" 
+              [value]="serverName"
+              readonly 
+              class="w-full bg-nexus-cream rounded-md p-3 mt-2 text-nexus-darkest font-semibold focus:outline-none">
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <h4 class="font-baseet text-lg text-nexus-pink-light font-semibold">INFORMAÇÕES DE LOGON</h4>
+          <div class="grid grid-cols-2 gap-4 mt-2">
+            <div>
+              <label class="font-inter text-sm text-nexus-lavender">Data:</label>
+              <input 
+                type="text" 
+                [value]="loginTime | date:'dd/MM/yyyy'" 
+                readonly 
+                class="w-full bg-nexus-pink-light rounded-md p-3 mt-2 text-nexus-purple-deep font-semibold focus:outline-none">
+            </div>
+            <div>
+              <label class="font-inter text-sm text-nexus-lavender">Horário:</label>
+              <input 
+                type="text" 
+                [value]="loginTime | date:'HH:mm'" 
+                readonly 
+                class="w-full bg-nexus-pink-light rounded-md p-3 mt-2 text-nexus-purple-deep font-semibold focus:outline-none">
+            </div>
+          </div>
+        </div>
+      
+      </div> </div> </div> </section>
