@@ -1,27 +1,29 @@
 import { Component } from '@angular/core';
-// 1. Importe o Router
 import { Router } from '@angular/router';
+// 1. IMPORTE O NOSSO NOVO SERVIÇO
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [], 
+  imports: [],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
 
-  // 2. Injete o Router no construtor
-  constructor(private router: Router) {}
+  // 2. INJETE O AuthService (e o Router)
+  constructor(
+    private router: Router,
+    private authService: AuthService // <-- ADICIONADO
+  ) {}
 
   /**
    * Chamado pelo botão "Sair".
-   * (No futuro, isto também limpará a sessão do utilizador)
-   * Navega de volta para a página de login.
    */
   public logout(): void {
-    console.log('Utilizador a sair...');
-    // 3. Navega de volta para a página principal (login)
-    this.router.navigate(['/']);
+    // 3. USE O SERVIÇO!
+    this.authService.logout();
+    // (O serviço de auth agora trata da navegação)
   }
 }

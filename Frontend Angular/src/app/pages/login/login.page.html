@@ -1,7 +1,24 @@
-<main class="w-full">
+@if (!(isLoggedIn$ | async)) {
 
+  <main class="w-full">
+    <app-middle></app-middle>
+    <app-login-form></app-login-form>
+  </main>
+
+} @else {
   <app-middle></app-middle>
-
-  <app-login-form></app-login-form>
-
-</main>
+  <main class="w-full bg-nexus-darkest py-40 flex flex-col items-center justify-center text-white min-h-[50vh]">
+    <h2 class="font-baseet text-3xl text-nexus-pink-light font-semibold">
+      Você já está autenticado!
+    </h2>
+    <p class="font-inter text-lg text-nexus-lavender mt-4 text-center">
+      Aceda ao seu perfil para testar o projeto e a persistência da sessão.
+    </p>
+    
+    <a 
+      routerLink="/meu-perfil" 
+      class="bg-nexus-purple text-white font-baseet font-semibold py-3 px-10 rounded-lg mt-8 hover:bg-nexus-magenta transition-colors duration-300 no-underline">
+      IR PARA O PERFIL
+    </a>
+  </main>
+}

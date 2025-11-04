@@ -18,10 +18,19 @@
 
   
   <nav class="w-full flex justify-end z-10">
-    <a href="javascript:void(0)" (click)="scrollToLogin()" class="bg-nexus-lavender text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-baseet font-semibold no-underline">
-      <span>LOGIN</span>
-      <img src="/assets/images/perfil-white.svg" alt="Ícone de Login" class="w-4 h-4">
-    </a>
+
+    @if (isLoggedIn) {
+      <button (click)="navigateToProfile()" class="bg-nexus-lavender text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-baseet font-semibold">
+        <span>PERFIL</span>
+        <img src="/assets/images/perfil-white.svg" alt="Ícone de Perfil" class="w-4 h-4">
+      </button>
+    } @else {
+      <a href="javascript:void(0)" (click)="scrollToLogin()" class="bg-nexus-lavender text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-baseet font-semibold no-underline">
+        <span>LOGIN</span>
+        <img src="/assets/images/perfil-white.svg" alt="Ícone de Login" class="w-4 h-4">
+      </a>
+    }
+
   </nav>
 
   

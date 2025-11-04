@@ -1,12 +1,14 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common'; // Vamos precisar do CommonModule para o @if
+import { FormsModule } from '@angular/forms'; 
+// 1. IMPORTE O NOSSO NOVO SERVIÇO
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule], // Mantenha o CommonModule
   templateUrl: './login-form.component.html',
   styleUrl: './login-form.component.css'
 })
@@ -15,18 +17,18 @@ export class LoginFormComponent {
   public username: string = '';
   public password: string = '';
   public showPassword: boolean = false;
-  public loginErrorMessage: string = '';
-  public showSignUp: boolean = false;
-  public signUpStep: number = 1;
-  public signUpUsername: string = '';
-  public signUpPassword: string = '';
-  public signUpMessage: string = '';
-
+  public loginErrorMessage: string = ''; 
+  
   @ViewChild('passwordInput') passwordField!: ElementRef;
   @ViewChild('signUpPasswordInput') signUpPasswordField!: ElementRef;
-  
-  constructor(private router: Router) { }
 
+  // 2. INJETE O AuthService (e o Router)
+  constructor(
+    private router: Router,
+    private authService: AuthService // <-- ADICIONADO
+  ) { }
+
+  // 3. ATUALIZE O 'onLogin()'
   public onLogin(): void {
     this.loginErrorMessage = '';
 
@@ -35,53 +37,44 @@ export class LoginFormComponent {
       return;
     }
     
-    console.log('Enviando para o backend...');
-    const u = this.username.toLowerCase();
-    const p = this.password;
+    // 4. USE O SERVIÇO!
+    // A lógica foi movida para o authService.
+    const loginSuccess = this.authService.login(this.username, this.password);
 
-    if ((u === 'aluno' || u === 'iesb') && p === '123') {
-      
-      // SUCESSO!
-      console.log('Login bem-sucedido! Navegando...');
-      
-      // 4. ADICIONE A NAVEGAÇÃO
-      // (Nós já configuramos a rota '/meu-perfil' no app.routes.ts)
-      this.router.navigate(['/meu-perfil']);
-
-    } else {
+    if (!loginSuccess) {
+      // Se o serviço retornou 'false', mostre o erro
       this.loginErrorMessage = 'Usuário ou senha não encontrado.';
     }
+    // (Se o login for um sucesso, o próprio serviço já navega)
   }
 
-  // 5. ADICIONE A NOVA FUNÇÃO 'onLoginEnter'
-  /**
-   * Chamado pelo "Enter" no campo de senha do login.
-   * Simula um clique no botão "ENTRAR".
-   */
+  // ... (a sua função onLoginEnter() fica igual) ...
   public onLoginEnter(event: Event, button: HTMLButtonElement): void {
     event.preventDefault();
     button.click();
   }
 
+  // ... (todas as suas outras funções de pop-up e toggle ficam aqui) ...
+  // ... (togglePasswordVisibility, openForgotPassword, etc.) ...
   public togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
-
-  // --- Propriedades do Pop-up (já existem) ---
   public showForgotPassword: boolean = false;
   public forgotPasswordStep: number = 1;
   public forgotUsername: string = '';
   public foundPassword: string = '';
   public foundUsernameDisplay: string = '';
   public showPasswordMessage: string = '';
-
-  // --- Funções do Pop-up (já existem) ---
+  public showSignUp: boolean = false;
+  public signUpStep: number = 1;
+  public signUpUsername: string = '';
+  public signUpPassword: string = '';
+  public signUpMessage: string = '';
   openForgotPassword(event: Event): void {
     event.preventDefault(); 
     this.showForgotPassword = true;
     this.forgotPasswordStep = 1; 
   }
-
   closeForgotPassword(): void {
     this.showForgotPassword = false;
     this.forgotUsername = '';
@@ -89,137 +82,71 @@ export class LoginFormComponent {
     this.foundUsernameDisplay = '';
     this.showPasswordMessage = '';
   }
-
   onFindPassword(): void {
     if (!this.forgotUsername) {
       this.showPasswordMessage = 'Por favor, digite o nome de usuário.';
       return;
     }
-    
-    console.log('Procurando usuário:', this.forgotUsername);
-    
     const usernameLower = this.forgotUsername.toLowerCase();
-    
     if (usernameLower === 'aluno' || usernameLower === 'iesb') {
-      this.foundPassword = 'senha_123';
+      this.foundPassword = 'senha_123'; 
       this.foundUsernameDisplay = this.forgotUsername; 
-      this.showPasswordMessage = '';
+      this.showPasswordMessage = ''; 
       this.forgotPasswordStep = 2;
-
     } else {
       this.showPasswordMessage = 'Usuário não encontrado.';
     }
   }
-  
   onConclude(): void {
     this.closeForgotPassword();
   }
-
   public focusPassword(event: Event): void {
-    // Impede que o "Enter" envie o formulário
     event.preventDefault();
-    
-    // Move o foco para o campo da senha
     if (this.passwordField) {
       this.passwordField.nativeElement.focus();
     }
   }
-
-  /**
-   * Chamado pelo "Enter" no campo "Esqueci minha senha".
-   * Simula um clique no botão "PRÓXIMO".
-   */
   public onFindPasswordEnter(event: Event, button: HTMLButtonElement): void {
-    // 1. Impede que o "Enter" envie o formulário (comportamento padrão)
     event.preventDefault();
-    
-    // 2. Clica programaticamente no botão "PRÓXIMO"
     button.click();
   }
-
-  /**
-   * Abre o pop-up de CADASTRO (chamado pelo link 'Cadastre-se aqui')
-   */
   openSignUp(event: Event): void {
-    event.preventDefault(); // Impede o link <a> de recarregar a página
+    event.preventDefault(); 
     this.showSignUp = true;
-    this.signUpStep = 1; // Garante que comece no passo 1
+    this.signUpStep = 1; 
   }
-
-  /**
-   * Fecha o pop-up de CADASTRO
-   */
   closeSignUp(): void {
     this.showSignUp = false;
-    // Limpa os campos para a próxima vez
     this.signUpUsername = '';
     this.signUpPassword = '';
     this.signUpMessage = '';
   }
-
-  /**
-   * Chamado pelo botão "CADASTRAR" (Passo 1).
-   * No futuro, fará o POST para a API.
-   */
   onSignUp(): void {
-    
-    // --- 1. Validação de campos vazios (como você pediu) ---
     if (!this.signUpUsername || !this.signUpPassword) {
       this.signUpMessage = 'Por favor, preencha o usuário e a senha.';
       return;
     }
-    
-    // --- 2. Validação extra (como você sugeriu) ---
     if (this.signUpPassword.length < 6) {
        this.signUpMessage = 'A senha deve ter pelo menos 6 caracteres.';
        return;
     }
-
-    // --- 3. SIMULAÇÃO DE BACKEND (POST) ---
-    console.log('Enviando POST de cadastro para o backend...');
-    
-    // Simulação: Vamos fingir que "aluno" e "iesb" já existem
     const usernameLower = this.signUpUsername.toLowerCase();
-    
     if (usernameLower === 'aluno' || usernameLower === 'iesb') {
-      
-      // 3a. CASO DE ERRO (Usuário já existe)
       this.signUpMessage = 'Este nome de usuário já está em uso.';
-      
     } else {
-      
-      // 3b. CASO DE SUCESSO
-      console.log('Usuário cadastrado:', this.signUpUsername);
-      this.signUpMessage = ''; // Limpa qualquer erro
-      
-      // Avança para o passo 2
+      this.signUpMessage = ''; 
       this.signUpStep = 2; 
     }
-    // --- Fim da Simulação ---
   }
-
-  /**
-   * Chamado pelo botão "CONCLUÍDO" (Passo 2)
-   */
   onSignUpConclude(): void {
     this.closeSignUp();
   }
-
-  /**
-   * Chamado pelo "Enter" no campo de usuário do cadastro.
-   * Move o foco para o campo de senha do cadastro.
-   */
   public focusSignUpPassword(event: Event): void {
     event.preventDefault();
     if (this.signUpPasswordField) {
       this.signUpPasswordField.nativeElement.focus();
     }
   }
-
-  /**
-   * Chamado pelo "Enter" no campo de senha do cadastro.
-   * Simula um clique no botão "CADASTRAR".
-   */
   public onSignUpEnter(event: Event, button: HTMLButtonElement): void {
     event.preventDefault();
     button.click();
