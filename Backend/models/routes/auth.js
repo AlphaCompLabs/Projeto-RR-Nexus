@@ -13,7 +13,7 @@ const express = require('express');
 const router = express.Router(); 
 
 // 2. Importamos o controller (usando ../ para voltar um diretório)
-const authController = require('../authController.js');
+const authController = require('../../authController.js');
 
 /* =====================================================================================
  * DEFINIÇÃO DAS ROTAS
