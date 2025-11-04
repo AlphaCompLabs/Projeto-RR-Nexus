@@ -119,7 +119,7 @@ exports.validate = async (req, res) => {
 
         await session.populate({
             path: 'userId',
-            select: 'username'
+            select: 'username _id'
         });
 
         if (!session.userId) {
@@ -130,6 +130,7 @@ exports.validate = async (req, res) => {
 
         res.status(200).json({
             message: 'Sessão validada com sucesso.',
+            userId: session.userId._id,
             username: session.userId.username,
             loginTime: session.createdAt,
             sessionId: session.sessionId,
