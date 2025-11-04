@@ -27,6 +27,7 @@ module.exports = {
         'nexus-darkest': '#130220',
         'nexus-dark': '#220A35',
         'nexus-purple-deep': '#5B0772',
+        'nexus-purple-dark': '#320746',
         'nexus-purple': '#8C0590',
         'nexus-purple-light': '#BE59BE',
         'nexus-magenta': '#EA1EF3',
@@ -38,7 +39,8 @@ module.exports = {
       },
       backgroundImage: {
         'header-gradient': "linear-gradient(to bottom, #130220, #130220, #220A35, #220A35, #220A35, #130220)",
-        'login-gradient': "linear-gradient(to bottom, #130220, #220A35, #220A35, #220A35, #220A35)"
+        'login-gradient': "linear-gradient(to bottom, #130220, #220A35, #220A35, #220A35, #220A35)",
+        'profile-gradient': "linear-gradient(to bottom, #220A35, #220A35, #220A35, #220A35, #130220, #130220)"
       }
     },
   },
