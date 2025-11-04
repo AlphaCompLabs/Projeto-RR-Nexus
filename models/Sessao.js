@@ -58,7 +58,8 @@ const sessaoSchema = new Schema(
          * timestamps: true -> Adiciona automaticamente os campos 'createdAt' e 'updatedAt'
          * em cada documento. Útil para auditoria e debugging.
          */
-        timestamps: true
+        timestamps: true,
+        collection: 'sessoes'
     }
 );
 
