@@ -1,35 +1,60 @@
-import { Component, OnInit } from '@angular/core';
-// 1. Importe o DatePipe para formatar a data/hora
+import { Component, OnInit, OnDestroy } from '@angular/core'; // 1. Importe OnDestroy
 import { DatePipe } from '@angular/common';
+import { Subscription } from 'rxjs'; // 2. Importe Subscription
+import { AuthService } from '../../services/auth.service'; // 3. Importe o AuthService
 
 @Component({
   selector: 'app-profile-form',
   standalone: true,
-  // 2. Adicione o DatePipe aos imports
   imports: [DatePipe],
   templateUrl: './profile-form.component.html',
   styleUrl: './profile-form.component.css'
 })
-export class ProfileFormComponent implements OnInit {
+// 4. Implemente OnInit e OnDestroy
+export class ProfileFormComponent implements OnInit, OnDestroy {
 
-  // 3. Esta é a "estruturinha" para os dados
-  public username: string = 'USERNAME';
-  public userId: string = 'ID DO USUÁRIO';
-  public sessionId: string = 'SESS-789-XYZ-123';
-  public serverName: string = 'Servidor A (Simulado)'; // Requisito do PDF
-  public loginTime: Date = new Date(); // Guarda a data/hora do login
+  // 5. Remova os dados simulados!
+  public username: string = 'Carregando...';
+  public userId: string = 'Carregando...';
+  public sessionId: string = 'Carregando...';
+  public serverName: string = '...'; // (Ver Nota)
+  public loginTime: Date | null = null; // (Começa como nulo)
 
-  constructor() { }
+  // 6. Guarde as nossas "escutas"
+  private userSub!: Subscription;
+  private sessionSub!: Subscription;
+
+  // 7. Injete o AuthService
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    // 4. No futuro, chamaremos uma função aqui para
-    // carregar estes dados de um serviço (backend)
-    this.loadUserProfile();
+    // 8. "Escute" as mudanças nos dados do utilizador
+    this.userSub = this.authService.currentUser.subscribe(user => {
+      if (user) {
+        this.username = user.username;
+        this.userId = `ID: ${user.username.toUpperCase()}`;
+      }
+    });
+
+    // 9. "Escute" as mudanças nos dados da sessão
+    this.sessionSub = this.authService.currentSession.subscribe(session => {
+      if (session) {
+        this.sessionId = session.sessionId;
+        this.loginTime = session.loginTime;
+        
+        // --- NOTA IMPORTANTE (Requisito do PDF) ---
+        // O seu backend (authController.js) não nos está a enviar
+        // o 'serverName'. Para cumprir os requisitos do trabalho,
+        // a equipa de backend precisa de o adicionar à resposta do /validate.
+        // Por agora, vamos simular esta parte:
+        this.serverName = "Servidor (Simulado)";
+      }
+    });
   }
 
-  loadUserProfile(): void {
-    // TODO: Substituir por chamadas reais de API e de Rede
-    // Por agora, os dados simulados acima são suficientes.
-    console.log('Página de perfil carregada.');
+  // 10. Limpe as "escutas" para evitar memory leaks
+  ngOnDestroy(): void {
+    if (this.userSub) this.userSub.unsubscribe();
+    if (this.sessionSub) this.sessionSub.unsubscribe();
   }
 }

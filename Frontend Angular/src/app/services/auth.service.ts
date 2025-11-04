@@ -1,54 +1,187 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs'; // Importante para "observar" o estado
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { tap, catchError, map, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  // 1. Usamos um BehaviorSubject para guardar o estado de login (true/false)
-  // Ele começa como 'false' (deslogado).
-  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
+  private readonly API_URL = 'http://localhost:3000/api/auth';
+  private readonly SESSION_KEY = 'rr-nexus-session-id';
 
-  // 2. Expomos o estado como um Observable (que os componentes podem "ver")
+  // --- NOSSOS "ESTADOS" GLOBAIS ---
+  
+  // 1. O estado de login (True/False)
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
+  // --- GARANTA QUE ESTA FUNÇÃO "GETTER" EXISTE ---
+  /**
+   * Retorna o valor booleano atual de isLoggedIn
+   */
   public get isLoggedIn(): boolean {
     return this.isLoggedInSubject.getValue();
   }
+  
+  // 2. Os dados do UTILIZADOR (ex: 'aluno')
+  public currentUser = new BehaviorSubject<any | null>(null);
+  
+  // 3. Os dados da SESSÃO (ex: ID, hora)
+  public currentSession = new BehaviorSubject<any | null>(null);
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {}
+
+  // --- LÓGICA DE VALIDAÇÃO (O Passo 6) ---
 
   /**
-   * Tenta fazer o login.
-   * No futuro, isto fará um POST para o backend.
+   * Chamado pelo AppComponent assim que a app carrega.
+   * Verifica o localStorage e valida com o backend.
    */
-  public login(username: string, password: string): boolean {
-    
-    // --- SIMULAÇÃO DE BACKEND ---
-    const u = username.toLowerCase();
-    const p = password;
+  public validateSessionOnLoad(): void {
+    const token = this.getToken();
 
-    if ((u === 'aluno' || u === 'iesb') && p === '123') {
-      // SUCESSO!
-      console.log('AuthService: Login bem-sucedido!');
-      this.isLoggedInSubject.next(true); // Informa a todos os componentes que estamos logados
-      this.router.navigate(['/meu-perfil']); // Navega para o perfil
-      return true;
-    } else {
-      // FALHA
-      console.log('AuthService: Falha no login.');
-      return false; // Retorna 'false' para o formulário de login
+    if (!token) {
+      // Se não há token, não há nada a fazer.
+      return; 
     }
+
+    console.log('AuthService: Token encontrado no localStorage. Validando...');
+    
+    // Se há token, chame a nossa função de validação
+    this.validateToken(token).subscribe();
   }
 
   /**
-   * Desloga o utilizador.
+   * Função central que faz o GET /session/validate
+   * Esta é chamada no F5 (pelo validateSessionOnLoad)
+   * E também DEPOIS de um login bem-sucedido.
    */
-  public logout(): void {
-    console.log('AuthService: Logout...');
-    this.isLoggedInSubject.next(false); // Informa a todos que estamos deslogados
-    this.router.navigate(['/']); // Envia de volta para a página de login
+  private validateToken(token: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<any>(`${this.API_URL}/session/validate`, { headers: headers })
+      .pipe(
+        tap(response => {
+          // SUCESSO! O token é válido.
+          console.log('AuthService: Validação bem-sucedida.', response);
+          
+          // 1. Guarde os dados do utilizador
+          this.currentUser.next({ username: response.username });
+          // 2. Guarde os dados da sessão
+          this.currentSession.next({ 
+            sessionId: response.sessionId, 
+            loginTime: response.loginTime 
+          });
+          // 3. Confirme que estamos logados
+          this.isLoggedInSubject.next(true);
+        }),
+        catchError(error => {
+          // FALHA! (Token expirado ou inválido)
+          console.warn('AuthService: Validação falhou. Limpando sessão.', error.error.error);
+          this.clearSession(); // Limpa o token mau
+          this.router.navigate(['/']);
+          return of(null);
+        })
+      );
+  }
+
+  // --- FUNÇÕES DE AJUDA (Helpers) ---
+
+  public getToken(): string | null {
+    return localStorage.getItem(this.SESSION_KEY);
+  }
+
+  public saveSession(sessionId: string): void {
+    localStorage.setItem(this.SESSION_KEY, sessionId);
+    // (A definição do isLoggedInSubject agora é feita pelo validateToken)
+  }
+
+  public clearSession(): void {
+    localStorage.removeItem(this.SESSION_KEY);
+    this.isLoggedInSubject.next(false);
+    this.currentUser.next(null); // Limpa os dados do utilizador
+    this.currentSession.next(null); // Limpa os dados da sessão
+    console.log('AuthService: Sessão limpa do localStorage e dos estados.');
+  }
+
+  // --- FUNÇÕES PRINCIPAIS (Atualizadas) ---
+
+  public login(username: string, password: string): Observable<boolean> {
+    const body = { username: username, password: password };
+    return this.http.post<any>(`${this.API_URL}/login`, body)
+      .pipe(
+        tap(response => {
+          // SUCESSO NO LOGIN!
+          // 1. Guarde o novo token (sessionId)
+          this.saveSession(response.sessionId);
+          
+          // 2. CHAME A VALIDAÇÃO!
+          // Isto é crucial: agora que temos um token,
+          // chame o /validate para buscar TODOS os dados (incluindo a loginTime)
+          // O .subscribe() aqui "dispara" a chamada.
+          this.validateToken(response.sessionId).subscribe(() => {
+            // 3. Navegue para o perfil SÓ DEPOIS de validar
+            this.router.navigate(['/meu-perfil']);
+          });
+        }),
+        map(() => true), 
+        catchError(error => {
+          console.error('AuthService: Falha no login real.', error.error);
+          return of(false); 
+        })
+      );
+  }
+
+  public logout(): Observable<any> {
+    const sessionId = this.getToken();
+    
+    // (O clearSession() agora é chamado no 'finalize')
+    if (sessionId) {
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${sessionId}`
+      });
+
+      return this.http.post<any>(`${this.API_URL}/logout`, {}, { headers: headers })
+        .pipe(
+          tap(response => {
+            console.log('AuthService: Sessão invalidada no backend.');
+          }),
+          catchError(error => {
+            console.warn('AuthService: Erro ao invalidar sessão no backend.');
+            return of(null);
+          }),
+          finalize(() => {
+            // 3. Limpe tudo e navegue
+            this.clearSession();
+            this.router.navigate(['/']); 
+          })
+        );
+    } else {
+      this.clearSession();
+      this.router.navigate(['/']); 
+      return of(null);
+    }
+  }
+
+  public register(username: string, password: string): Observable<any> {
+    const body = { username: username, password: password };
+    return this.http.post<any>(`${this.API_URL}/register`, body)
+      .pipe(
+        tap(response => {
+          console.log('AuthService: Registo bem-sucedido!');
+        }),
+        catchError(error => {
+          console.error('AuthService: Falha no registo.', error.error);
+          throw error; 
+        })
+      );
   }
 }

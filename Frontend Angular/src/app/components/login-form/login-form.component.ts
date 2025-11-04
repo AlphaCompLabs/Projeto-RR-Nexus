@@ -37,15 +37,17 @@ export class LoginFormComponent {
       return;
     }
     
-    // 4. USE O SERVIÇO!
-    // A lógica foi movida para o authService.
-    const loginSuccess = this.authService.login(this.username, this.password);
-
-    if (!loginSuccess) {
-      // Se o serviço retornou 'false', mostre o erro
-      this.loginErrorMessage = 'Usuário ou senha não encontrado.';
-    }
-    // (Se o login for um sucesso, o próprio serviço já navega)
+    // 4. USE O SERVIÇO (AGORA COM .subscribe())
+    // A lógica de "loginSuccess" mudou para aqui dentro.
+    this.authService.login(this.username, this.password)
+      .subscribe(success => {
+        // O subscribe vai esperar pela resposta do backend
+        if (!success) {
+          // Se o authService nos devolveu 'false', mostre o erro
+          this.loginErrorMessage = 'Usuário ou senha não encontrado.';
+        }
+        // (Se 'success' for true, o próprio serviço já tratou da navegação)
+      });
   }
 
   // ... (a sua função onLoginEnter() fica igual) ...
@@ -121,7 +123,9 @@ export class LoginFormComponent {
     this.signUpPassword = '';
     this.signUpMessage = '';
   }
+  // --- ATUALIZAÇÃO DA FUNÇÃO onSignUp ---
   onSignUp(): void {
+    // 1. Validação do frontend (como você já tinha)
     if (!this.signUpUsername || !this.signUpPassword) {
       this.signUpMessage = 'Por favor, preencha o usuário e a senha.';
       return;
@@ -130,13 +134,30 @@ export class LoginFormComponent {
        this.signUpMessage = 'A senha deve ter pelo menos 6 caracteres.';
        return;
     }
-    const usernameLower = this.signUpUsername.toLowerCase();
-    if (usernameLower === 'aluno' || usernameLower === 'iesb') {
-      this.signUpMessage = 'Este nome de usuário já está em uso.';
-    } else {
-      this.signUpMessage = ''; 
-      this.signUpStep = 2; 
-    }
+
+    // 2. Limpa a mensagem de erro antes de tentar
+    this.signUpMessage = '';
+
+    // 3. USE O SERVIÇO (com .subscribe())
+    this.authService.register(this.signUpUsername, this.signUpPassword)
+      .subscribe({
+        // 4. Callback de SUCESSO
+        next: (response) => {
+          // O backend deu sucesso, avance para o Passo 2
+          this.signUpStep = 2; 
+        },
+        
+        // 5. Callback de ERRO
+        error: (err) => {
+          // Mostra a mensagem de erro vinda do backend
+          // (Ex: "Este nome de usuário já está em uso.")
+          if (err.error && err.error.error) {
+            this.signUpMessage = err.error.error;
+          } else {
+            this.signUpMessage = 'Ocorreu um erro desconhecido.';
+          }
+        }
+      });
   }
   onSignUpConclude(): void {
     this.closeSignUp();

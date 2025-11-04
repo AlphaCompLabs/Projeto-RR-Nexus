@@ -2,7 +2,9 @@
 
 import { ApplicationConfig } from '@angular/core';
 
-// 1. Importe a função 'withInMemoryScrolling'
+// 1. IMPORTE O 'provideHttpClient'
+import { provideHttpClient } from '@angular/common/http';
+
 import { 
   provideRouter, 
   withInMemoryScrolling 
@@ -12,16 +14,15 @@ import { routes } from './app.routes';
 export const appConfig: ApplicationConfig = {
   providers: [
     
-    // 2. Adicione a feature 'withInMemoryScrolling'
+    // 2. ADICIONE O 'provideHttpClient()' AQUI
+    // (Isto "liga" o HttpClient em toda a sua aplicação)
+    provideHttpClient(), 
+
+    // O seu provider de rotas (que já cá estava)
     provideRouter(
       routes,
-      
-      // 3. Passe as opções de scroll para DENTRO dela
       withInMemoryScrolling({
-        // Habilita o scroll para #id (ancoras)
         anchorScrolling: 'enabled',
-        
-        // Habilita o scroll para o topo ao recarregar/navegar
         scrollPositionRestoration: 'top'
       })
     )

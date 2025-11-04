@@ -18,12 +18,13 @@ export class SidebarComponent {
     private authService: AuthService // <-- ADICIONADO
   ) {}
 
-  /**
+/**
    * Chamado pelo botão "Sair".
    */
   public logout(): void {
-    // 3. USE O SERVIÇO!
-    this.authService.logout();
-    // (O serviço de auth agora trata da navegação)
+    // 3. USE O SERVIÇO (e subscreva)
+    // Não precisamos de fazer nada no subscribe,
+    // o serviço (no 'finalize') já trata de tudo.
+    this.authService.logout().subscribe();
   }
 }
