@@ -1,23 +1,21 @@
 /* =====================================================================================
  * CONTROLLER DE AUTENTICAÇÃO
- * Versão: 1.0.0
+ * Versão: 1.1.0 (Refatorado para Error Handler Global)
  *
  * Autor: Equipe BackEnd - Diogo Freitas e Caio Silveira
- * Descrição: Este arquivo contém toda a lógica de negócios para os endpoints
- * de autenticação (register, login, validate, logout).
+ * Descrição: Contém a lógica de negócios para autenticação.
+ * Esta versão passa os erros (catch) para o middleware
+ * de erro global (index.js) usando next(err).
  * =====================================================================================
  */
 
 // --- IMPORTAÇÕES ---
-// Precisamos importar os mesmos módulos que a lógica usava no index.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const Usuario = require('./models/Usuario.js'); // Importa o Model de Usuário
-const Sessao = require('./models/Sessao.js');   // Importa o Model de Sessão
+const Usuario = require('./models/Usuario.js');
+const Sessao = require('./models/Sessao.js');
 
-// Copiamos o logger do index.js
-// (Uma melhoria futura seria mover isso para seu próprio módulo, ex: utils/logger.js)
 const logger = {
     info: (message) => console.log(`[INFO] ${new Date().toISOString()} - ${message}`),
     warn: (message) => console.warn(`[WARN] ${new Date().toISOString()} - ${message}`),
@@ -28,6 +26,7 @@ const logger = {
 
 /**
  * Middleware para extrair o sessionId do header 'Authorization'.
+ * (Este já usava 'next' corretamente, então não muda)
  */
 exports.extractSessionFromHeader = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -50,7 +49,7 @@ exports.extractSessionFromHeader = (req, res, next) => {
 /**
  * Processa a tentativa de login de um usuário. (POST /login)
  */
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
     try {
         const { username, password } = req.body;
 
@@ -92,17 +91,18 @@ exports.login = async (req, res) => {
         });
 
     } catch (err) {
+        // ---  Modificado o 'catch' ---
         logger.error("Erro inesperado no endpoint /login:", err.message);
-        res.status(500).json({ error: 'Erro interno do servidor.' });
+        next(err); // Passa o erro para o handler global no index.js
     }
 };
 
 /**
  * Valida um sessionId enviado pelo Frontend. (GET /session/validate)
  */
-exports.validate = async (req, res) => {
+exports.validate = async (req, res, next) => { 
     try {
-        const { sessionId } = req; // Pega o ID da sessão do middleware
+        const { sessionId } = req; 
 
         const session = await Sessao.findOne({ sessionId: sessionId });
 
@@ -137,17 +137,18 @@ exports.validate = async (req, res) => {
         });
 
     } catch (err) {
+        // --- Modificado o 'catch' ---
         logger.error("Erro inesperado no endpoint /session/validate:", err.message);
-        res.status(500).json({ error: 'Erro interno do servidor.' });
+        next(err); // Passa o erro para o handler global
     }
 };
 
 /**
  * Invalida (deleta) a sessão de um usuário. (POST /logout)
  */
-exports.logout = async (req, res) => {
+exports.logout = async (req, res, next) => { 
     try {
-        const { sessionId } = req; // Pega o ID da sessão do middleware
+        const { sessionId } = req;
 
         const deletedSession = await Sessao.findOneAndDelete({ sessionId: sessionId });
 
@@ -163,15 +164,16 @@ exports.logout = async (req, res) => {
         });
 
     } catch (err) {
+        // --- Modificado o 'catch' ---
         logger.error("Erro inesperado no endpoint /logout:", err.message);
-        res.status(500).json({ error: 'Erro interno do servidor.' });
+        next(err); // Passa o erro para o handler global
     }
 };
 
 /**
  * Rota temporária para criar usuários durante o desenvolvimento. (POST /register)
  */
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => { 
     try {
         const { username, password } = req.body;
 
@@ -193,10 +195,44 @@ exports.register = async (req, res) => {
         });
 
     } catch (err) {
+        // ---  Modificado o 'catch' (com lógica especial) ---
         logger.error("Erro no /register:", err.message);
+        // Se for um erro de usuário duplicado (código 11000), nós o tratamos aqui
         if (err.code === 11000) {
             return res.status(409).json({ error: 'Este nome de usuário já está em uso.' });
         }
-        res.status(500).json({ error: err.message });
+        // Para TODOS OS OUTROS erros (ex: falha de validação, DB offline),
+        // passamos para o handler global.
+        next(err); 
+    }
+};
+
+/**
+ * Redefine a senha de um usuário (Fluxo "Esqueci minha Senha" simplificado).
+ */
+exports.resetPassword = async (req, res, next) => { 
+    try {
+        const { username, newPassword } = req.body;
+
+        if (!username || !newPassword) {
+            return res.status(400).json({ error: 'Nome de usuário e nova senha são obrigatórios.' });
+        }
+
+        const user = await Usuario.findOne({ username: username.toLowerCase() });
+
+        if (!user) {
+            return res.status(404).json({ error: 'Usuário não encontrado.' });
+        }
+
+        user.password = newPassword;
+        await user.save(); // O hook de hashing roda aqui
+
+        logger.info(`Senha redefinida com sucesso para o usuário: ${username}`);
+        res.status(200).json({ message: 'Senha redefinida com sucesso.' });
+
+    } catch (err) {
+        // --- Modificado o 'catch' ---
+        logger.error("Erro no /reset-password:", err.message);
+        next(err); // Passa o erro para o handler global
     }
 };

@@ -28,6 +28,23 @@ const logger = {
     error: (message, error) => console.error(`[ERROR] ${new Date().toISOString()} - ${message}`, error || ''),
 };
 
+// ---  SEÇÃO 0: CRASH PREVENTION  ---
+// Captura erros que não foram tratados em código 'async'
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection at:', promise);
+    logger.error('Reason:', reason);
+    
+    // process.exit(1); 
+});
+
+// Captura erros síncronos que não foram tratados
+process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception:', error);
+    // Isso é um erro fatal. O app deve ser reiniciado.
+    process.exit(1);
+});
+// ---------------------------------------------------------
+
 // --- SEÇÃO 1: INICIALIZAÇÃO E CONFIGURAÇÃO DA APLICAÇÃO ---
 
 const app = express();
@@ -93,9 +110,8 @@ app.get('/', (req, res) => {
 
 // --- 5.3 Rotas da Aplicação (Middleware de Roteamento) ---
 
-// Aqui está a "mágica":
-// Dizemos ao Express: "Qualquer requisição que comece com '/api/auth'
-// deve ser gerenciada pelo nosso arquivo 'authRoutes'".
+
+// "Qualquer requisição que comece com '/api/auth'deve ser gerenciada pelo nosso arquivo 'authRoutes'".
 app.use('/api/auth', authRoutes);
 
 
@@ -104,6 +120,24 @@ app.use('/api/auth', authRoutes);
  * FIM DAS DEFINIÇÕES DE ROTAS
  * ===============================================
  */
+
+// ---  SEÇÃO 5.5: MIDDLEWARE GLOBAL DE TRATAMENTO DE ERROS ---
+// ESTE DEVE SER O ÚLTIMO 'app.use()'
+// O Express reconhece um middleware de 4 argumentos como um Error Handler
+app.use((err, req, res, next) => {
+    // Loga o erro
+    logger.error("Um erro não tratado foi pego pelo handler global:", err.message);
+    console.error(err.stack); // Mostra a pilha de erro para debug
+    
+    // Define um status de erro padrão (500) se nenhum foi definido
+    const statusCode = err.statusCode || 500;
+
+    res.status(statusCode).json({
+        error: "Erro interno do servidor.",
+        // Apenas para desenvolvimento, podemos enviar a mensagem de erro
+        // message: err.message 
+    });
+});
 
 
 // --- SEÇÃO 6: INICIALIZAÇÃO DO SERVIDOR ---

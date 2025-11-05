@@ -41,6 +41,9 @@ router.get('/session/validate', authController.extractSessionFromHeader, authCon
 // Corresponde a: POST /api/auth/logout
 router.post('/logout', authController.extractSessionFromHeader, authController.logout);
 
+// Rota para redefinir a senha
+router.post('/reset-password', authController.resetPassword);
+
 
 // 3. Exportamos o router configurado para que o index.js possa usá-lo
 module.exports = router;
