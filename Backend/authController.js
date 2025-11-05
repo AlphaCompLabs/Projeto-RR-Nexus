@@ -24,7 +24,7 @@ const logger = {
 
 // --- LÓGICA DO CONTROLLER (EXPORTADA) ---
 
-/**
+/**5
  * Middleware para extrair o sessionId do header 'Authorization'.
  * (Este já usava 'next' corretamente, então não muda)
  */
@@ -119,7 +119,7 @@ exports.validate = async (req, res, next) => {
 
         await session.populate({
             path: 'userId',
-            select: 'username'
+            select: 'username _id'
         });
 
         if (!session.userId) {
@@ -130,6 +130,7 @@ exports.validate = async (req, res, next) => {
 
         res.status(200).json({
             message: 'Sessão validada com sucesso.',
+            userId: session.userId._id,
             username: session.userId.username,
             loginTime: session.createdAt,
             sessionId: session.sessionId,

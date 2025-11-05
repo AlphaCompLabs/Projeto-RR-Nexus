@@ -72,6 +72,10 @@ export class LoginFormComponent {
   public signUpUsername: string = '';
   public signUpPassword: string = '';
   public signUpMessage: string = '';
+  public showSignUpPassword: boolean = false;
+  public newPassword: string = '';
+  public showNewPassword: boolean = false;
+
   openForgotPassword(event: Event): void {
     event.preventDefault(); 
     this.showForgotPassword = true;
@@ -83,21 +87,45 @@ export class LoginFormComponent {
     this.foundPassword = '';
     this.foundUsernameDisplay = '';
     this.showPasswordMessage = '';
+    this.newPassword = '';
+    this.showNewPassword = false;
   }
-  onFindPassword(): void {
-    if (!this.forgotUsername) {
-      this.showPasswordMessage = 'Por favor, digite o nome de usuário.';
+  /**
+   * Chamado pelo botão "REDEFINIR SENHA" (Passo 1).
+   * Faz o POST para a API.
+   */
+  onResetPassword(): void {
+    
+    // 1. Validação do frontend
+    if (!this.forgotUsername || !this.newPassword) {
+      this.showPasswordMessage = 'Por favor, preencha o usuário e a nova senha.';
       return;
     }
-    const usernameLower = this.forgotUsername.toLowerCase();
-    if (usernameLower === 'aluno' || usernameLower === 'iesb') {
-      this.foundPassword = 'senha_123'; 
-      this.foundUsernameDisplay = this.forgotUsername; 
-      this.showPasswordMessage = ''; 
-      this.forgotPasswordStep = 2;
-    } else {
-      this.showPasswordMessage = 'Usuário não encontrado.';
-    }
+    // (Pode adicionar mais validações, como 'newPassword.length < 6')
+
+    // 2. Limpa a mensagem de erro
+    this.showPasswordMessage = '';
+
+    // 3. USE O SERVIÇO (com .subscribe())
+    this.authService.resetPassword(this.forgotUsername, this.newPassword)
+      .subscribe({
+        // 4. Callback de SUCESSO
+        next: (response) => {
+          // O backend deu sucesso, avance para o Passo 2
+          this.forgotPasswordStep = 2; 
+        },
+        
+        // 5. Callback de ERRO
+        error: (err) => {
+          // Mostra a mensagem de erro vinda do backend
+          // (Ex: "Usuário não encontrado.")
+          if (err.error && err.error.error) {
+            this.showPasswordMessage = err.error.error;
+          } else {
+            this.showPasswordMessage = 'Ocorreu um erro desconhecido.';
+          }
+        }
+      });
   }
   onConclude(): void {
     this.closeForgotPassword();
@@ -122,6 +150,7 @@ export class LoginFormComponent {
     this.signUpUsername = '';
     this.signUpPassword = '';
     this.signUpMessage = '';
+    this.showSignUpPassword = false;    
   }
   // --- ATUALIZAÇÃO DA FUNÇÃO onSignUp ---
   onSignUp(): void {
@@ -171,5 +200,13 @@ export class LoginFormComponent {
   public onSignUpEnter(event: Event, button: HTMLButtonElement): void {
     event.preventDefault();
     button.click();
+  }
+
+  public toggleNewPasswordVisibility(): void {
+    this.showNewPassword = !this.showNewPassword;
+  }
+
+  public toggleSignUpPasswordVisibility(): void {
+    this.showSignUpPassword = !this.showSignUpPassword;
   }
 }

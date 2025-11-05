@@ -32,7 +32,7 @@ export class ProfileFormComponent implements OnInit, OnDestroy {
     this.userSub = this.authService.currentUser.subscribe(user => {
       if (user) {
         this.username = user.username;
-        this.userId = `ID: ${user.username.toUpperCase()}`;
+        this.userId = `ID: ${user.userId}`;
       }
     });
 

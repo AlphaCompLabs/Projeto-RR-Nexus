@@ -95,7 +95,7 @@
     <div class="relative z-40 w-full max-w-md overflow-hidden rounded-2xl shadow-2xl" (click)="$event.stopPropagation()">
       
       <div class="relative bg-nexus-purple-light p-4 flex justify-between items-center">
-        <h3 class="font-baseet text-xl text-nexus-purple-deep font-semibold h-7 flex items-center pt-1">RECUPERAR SENHA</h3>
+        <h3 class="font-baseet text-xl text-nexus-purple-deep font-semibold h-7 flex items-center pt-1">REDEFINIR SENHA</h3>
         <div class="flex items-center gap-x-2">
           <img src="assets/images/perfil-dark.svg" alt="Ícone de perfil" class="w-6 h-6 opacity-70">
           <button type="button" (click)="closeForgotPassword()" class="w-7 h-7 flex items-center justify-center rounded-md text-nexus-darkest bg-black bg-opacity-10 hover:bg-opacity-20 transition-all" aria-label="Fechar pop-up">
@@ -122,24 +122,38 @@
                 class="w-full bg-nexus-cream rounded-md p-3 mt-2 text-nexus-darkest font-regular focus:outline-none focus:ring-2 focus:ring-nexus-magenta"
                 required>
               
+              <div class="mt-4">
+                <label for="newPassword" class="font-inter text-sm text-nexus-purple-deep">Digite a nova senha:</label>
+                <div class="relative"> 
+                  <input 
+                    [type]="showNewPassword ? 'text' : 'password'" id="newPassword" 
+                    name="newPassword"
+                    [(ngModel)]="newPassword"
+                    class="w-full bg-nexus-cream rounded-md p-3 pr-12 mt-2 text-nexus-darkest font-regular focus:outline-none focus:ring-2 focus:ring-nexus-magenta"
+                    required>
+                  <img 
+                    (click)="toggleNewPasswordVisibility()"
+                    [src]="showNewPassword ? 'assets/images/olho-fechado.svg' : 'assets/images/olho.svg'"
+                    alt="Mostrar/Ocultar senha" 
+                    class="absolute right-4 top-1/2 -translate-y-[40%] w-6 cursor-pointer">
+                </div>
+              </div>
               @if (showPasswordMessage) {
                 <p class="font-inter text-sm text-red-700 mt-2">{{ showPasswordMessage }}</p>
               }
 
               <div class="flex justify-end mt-6">
-                <button #forgotPasswordButton (click)="onFindPassword()" class="bg-nexus-purple text-white font-baseet font-semibold py-2 px-6 rounded-lg hover:bg-nexus-purple-deep transition-colors">
-                  PRÓXIMO
+                <button #forgotPasswordButton (click)="onResetPassword()" class="bg-nexus-purple text-white font-baseet font-semibold py-2 px-6 rounded-lg hover:bg-nexus-purple-deep transition-colors">
+                  REDEFINIR SENHA
                 </button>
               </div>
             </div>
           } @else if (forgotPasswordStep === 2) {
             <div>
-              <p class="font-inter text-sm text-nexus-purple-deep text-center">
-                A senha do usuário <strong class="font-semibold">{{ foundUsernameDisplay }}</strong> é:
+              <p class="font-inter text-lg text-nexus-purple-deep font-bold text-center my-4">
+                Senha redefinida com sucesso!
               </p>
-              <p class="font-inter text-lg text-nexus-purple-deep font-bold text-center my-4 p-2 bg-nexus-cream rounded-md">
-                {{ foundPassword }}
-              </p>
+              
               <div class="flex justify-end mt-6">
                 <button (click)="onConclude()" class="bg-nexus-purple text-white font-baseet font-semibold py-2 px-6 rounded-lg hover:bg-nexus-purple-deep transition-colors">
                   CONCLUÍDO
@@ -190,13 +204,20 @@
               </div>
               <div class="mt-4">
                 <label for="signUpPassword" class="font-inter text-sm text-nexus-purple-deep">Senha:</label>
-                <input 
-                  type="password" 
-                  id="signUpPassword" 
-                  name="signUpPassword"
-                  [(ngModel)]="signUpPassword"
-                  #signUpPasswordInput (keydown.enter)="onSignUpEnter($event, signUpButton)" class="w-full bg-nexus-cream rounded-md p-3 mt-2 text-nexus-darkest font-regular focus:outline-none focus:ring-2 focus:ring-nexus-magenta"
-                  required>
+                <div class="relative">
+                  <input 
+                    [type]="showSignUpPassword ? 'text' : 'password'" id="signUpPassword" 
+                    name="signUpPassword"
+                    [(ngModel)]="signUpPassword"
+                    #signUpPasswordInput (keydown.enter)="onSignUpEnter($event, signUpButton)" 
+                    class="w-full bg-nexus-cream rounded-md p-3 pr-12 mt-2 text-nexus-darkest font-regular focus:outline-none focus:ring-2 focus:ring-nexus-magenta"
+                    required>
+                  <img 
+                    (click)="toggleSignUpPasswordVisibility()"
+                    [src]="showSignUpPassword ? 'assets/images/olho-fechado.svg' : 'assets/images/olho.svg'"
+                    alt="Mostrar/Ocultar senha" 
+                    class="absolute right-4 top-1/2 -translate-y-[40%] w-6 cursor-pointer">
+                </div>
               </div>
               @if (signUpMessage) {
                 <p class="font-inter text-sm text-red-700 mt-2">{{ signUpMessage }}</p>

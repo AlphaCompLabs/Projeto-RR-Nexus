@@ -74,7 +74,10 @@ export class AuthService {
           console.log('AuthService: Validação bem-sucedida.', response);
           
           // 1. Guarde os dados do utilizador
-          this.currentUser.next({ username: response.username });
+          this.currentUser.next({ 
+            username: response.username, 
+            userId: response.userId 
+          });;
           // 2. Guarde os dados da sessão
           this.currentSession.next({ 
             sessionId: response.sessionId, 
@@ -181,6 +184,32 @@ export class AuthService {
         catchError(error => {
           console.error('AuthService: Falha no registo.', error.error);
           throw error; 
+        })
+      );
+  }
+
+  /**
+   * Tenta redefinir a senha de um usuário.
+   * Faz um POST real para o backend.
+   */
+  public resetPassword(username: string, newPassword: string): Observable<any> {
+    
+    // O corpo da requisição que o seu backend espera
+    const body = { username: username, newPassword: newPassword };
+
+    // 1. FAÇA A CHAMADA HTTP POST REAL
+    // (Assumindo que o seu amigo mapeou 'resetPassword' para esta rota)
+    return this.http.post<any>(`${this.API_URL}/reset-password`, body)
+      .pipe(
+        // 2. Se o registo for um SUCESSO
+        tap(response => {
+          console.log('AuthService: Senha redefinida com sucesso!', response.message);
+        }),
+        
+        // 3. Se o registo FALHAR (ex: 404 Usuário não encontrado)
+        catchError(error => {
+          console.error('AuthService: Falha no reset da senha.', error.error);
+          throw error; // Passa o erro para o componente
         })
       );
   }
