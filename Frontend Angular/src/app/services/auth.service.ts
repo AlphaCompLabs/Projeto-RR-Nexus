@@ -9,7 +9,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class AuthService {
 
-  private readonly API_URL = 'http://www.meutrabalho.com.br/api/auth';
+  private readonly API_URL = 'http://172.19.50.25:3000/api/auth';
   private readonly SESSION_KEY = 'rr-nexus-session-id';
 
   // --- NOSSOS "ESTADOS" GLOBAIS ---
