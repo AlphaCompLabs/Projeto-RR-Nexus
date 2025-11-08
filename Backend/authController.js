@@ -48,8 +48,10 @@ exports.extractSessionFromHeader = (req, res, next) => {
 
 /**
  * Processa a tentativa de login de um usuário. (POST /login)
+ * Implementa a política de "Sessão Única",
+ * invalidando sessões antigas no momento do novo login.
  */
-exports.login = async (req, res, next) => {
+exports.login = async (req, res, next) => { 
     try {
         const { username, password } = req.body;
 
@@ -72,6 +74,12 @@ exports.login = async (req, res, next) => {
             return res.status(401).json({ error: 'Credenciais inválidas.' });
         }
 
+        // Política de Sessão Única: Antes de criar uma nova sessão,
+        // deletamos todas as sessões existentes para este usuário.
+        logger.info(`Invalidando sessões antigas para o usuário: ${user.username}`);
+        await Sessao.deleteMany({ userId: user._id });
+        // ------------------------------------
+
         const sessionId = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + (60 * 60 * 1000)); // 1 hora
 
@@ -82,7 +90,7 @@ exports.login = async (req, res, next) => {
         });
 
         await newSession.save();
-        logger.info(`Nova sessão criada para o usuário: ${user.username}`);
+        logger.info(`Nova sessão (única) criada para o usuário: ${user.username}`);
 
         res.status(200).json({
             message: 'Login realizado com sucesso!',
@@ -91,7 +99,6 @@ exports.login = async (req, res, next) => {
         });
 
     } catch (err) {
-        // ---  Modificado o 'catch' ---
         logger.error("Erro inesperado no endpoint /login:", err.message);
         next(err); // Passa o erro para o handler global no index.js
     }
