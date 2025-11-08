@@ -58,7 +58,14 @@ app.use(express.json());
 // Middleware de CORS (Cross-Origin Resource Sharing) 
 // Habilita que outras origens (ex: seu frontend em http://localhost:4200)
 // possam fazer requisições para esta API.
-app.use(cors());
+//app.use(cors({ origin: 'http://www.meutrabalho.com' }));
+const corsOptions = {
+  origin: 'http://localhost:4200' // Permite APENAS o seu frontend Angular
+};
+
+app.use(cors(corsOptions));
+
+
 // NOTA DE PRODUÇÃO: Para segurança máxima, restrinja as origens:
 // app.use(cors({ origin: 'http://seu-frontend.com' }));
 
