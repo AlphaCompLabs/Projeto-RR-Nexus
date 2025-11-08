@@ -21,7 +21,7 @@ export class AuthService {
   // --- NOSSOS "ESTADOS" GLOBAIS ---
   
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
-  public isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  public isLoggedIn$: Observable<boolean>;
 
   public get isLoggedIn(): boolean {
     return this.isLoggedInSubject.getValue();
@@ -35,9 +35,11 @@ export class AuthService {
   private currentHostname = new BehaviorSubject<string>('Carregando...');
 
   constructor(
-    private router: Router,
-    private http: HttpClient
-  ) {}
+  private router: Router,
+  private http: HttpClient
+) {
+  this.isLoggedIn$ = this.isLoggedInSubject.asObservable();
+}
 
   // --- LÓGICA DE VALIDAÇÃO ---
 
