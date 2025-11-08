@@ -28,27 +28,27 @@ export class ProfileFormComponent implements OnInit, OnDestroy {
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    // 8. "Escute" as mudanças nos dados do utilizador
+    // 1. "Escute" os dados do Utilizador (username, userId)
+    // (Isto vem da validação da sessão que o AuthGuard já fez)
     this.userSub = this.authService.currentUser.subscribe(user => {
       if (user) {
         this.username = user.username;
-        this.userId = `ID: ${user.userId}`;
+        this.userId = `ID: ${user.userId}`; 
       }
     });
 
-    // 9. "Escute" as mudanças nos dados da sessão
+    // 2. "Escute" os dados da Sessão (sessionId, loginTime)
     this.sessionSub = this.authService.currentSession.subscribe(session => {
       if (session) {
         this.sessionId = session.sessionId;
         this.loginTime = session.loginTime;
-        
-        // --- NOTA IMPORTANTE (Requisito do PDF) ---
-        // O seu backend (authController.js) não nos está a enviar
-        // o 'serverName'. Para cumprir os requisitos do trabalho,
-        // a equipa de backend precisa de o adicionar à resposta do /validate.
-        // Por agora, vamos simular esta parte:
-        this.serverName = "Servidor (Simulado)";
       }
+    });
+
+    // 3. FAÇA A NOVA CHAMADA PARA O HOSTNAME
+    // Pede ao servidor HTTP (A, B, ou C) o seu nome
+    this.authService.getServerHostname().subscribe(hostname => {
+      this.serverName = hostname; // Preenche o campo "Servidor:"
     });
   }
 

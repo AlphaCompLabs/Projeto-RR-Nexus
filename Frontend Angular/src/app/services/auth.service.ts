@@ -9,7 +9,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class AuthService {
 
-  private readonly API_URL = 'http://172.19.50.25:3000/api/auth';
+  // O 'API_URL' agora aponta para o seu Servidor de Backend (D)
+  private readonly API_URL = 'http://10.0.0.D:3000/api/auth'; // <--- Mude este IP
+  // O 'HOST_URL' aponta para os seus Servidores HTTP (A, B, C)
+  private readonly HOST_URL = 'http://www.meutrabalho.com.br';
   private readonly SESSION_KEY = 'rr-nexus-session-id';
 
   // --- NOSSOS "ESTADOS" GLOBAIS ---
@@ -210,6 +213,20 @@ export class AuthService {
         catchError(error => {
           console.error('AuthService: Falha no reset da senha.', error.error);
           throw error; // Passa o erro para o componente
+        })
+      );
+  }
+
+  /**
+   * Pega o hostname do Servidor HTTP (A, B, ou C)
+   */
+  public getServerHostname(): Observable<string> {
+    return this.http.get<any>(`${this.HOST_URL}/api/server-info`)
+      .pipe(
+        map(response => response.hostname), // Extrai o 'hostname' do JSON
+        catchError(error => {
+          console.error('AuthService: Falha ao buscar hostname do HTTP server.', error);
+          return of('Servidor Desconhecido'); // Fallback
         })
       );
   }
