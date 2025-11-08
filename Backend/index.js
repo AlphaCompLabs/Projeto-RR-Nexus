@@ -21,6 +21,8 @@ const cors = require('cors');       // Para Cross-Origin Resource Sharing
 // Carrega variáveis de ambiente do .env para process.env
 require('dotenv').config();
 
+
+
 // Módulos de logging
 const logger = {
     info: (message) => console.log(`[INFO] ${new Date().toISOString()} - ${message}`),
@@ -55,22 +57,47 @@ const PORT = process.env.PORT || 3000; // Porta padrão 3000 se não definida no
 // Middleware para parsing de JSON
 app.use(express.json());
 
-// Middleware de CORS (Cross-Origin Resource Sharing) 
-// Habilita que outras origens (ex: seu frontend em http://localhost:4200)
-// possam fazer requisições para esta API.
-//app.use(cors({ origin: 'http://www.meutrabalho.com' }));
+// --- Lista de Origens Permitidas (Whitelist) ---
+// Define explicitamente quem pode falar com a nossa API.
+const allowedOrigins = [
+    'http://172.19.50.21', // HTTP-1
+    'http://172.19.50.22', // HTTP-2
+    'http://172.19.50.23', // HTTP-3
+    'http://www.meutrabalho.com.br',
+    'http://localhost:4200' 
+];
+
 const corsOptions = {
-  origin: 'http://localhost:4200' // Permite APENAS o seu frontend Angular
+    origin: function (origin, callback) {
+        // 'origin' é quem está tentando nos acessar (ex: 'http://172.19.50.21')
+
+        // 1. Permite requisições sem 'origin' (ex: Postman/Insomnia ou apps mobile)
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        // 2. Verifica se a origem está na nossa lista de permissões
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = `CORS Error: A origem '${origin}' não tem permissão para acessar este recurso.`;
+            logger.warn(msg);
+            return callback(new Error(msg), false); // BLOQUEIA A REQUISIÇÃO
+        }
+
+        // 3. Se a origem ESTÁ na lista, permite
+        return callback(null, true);
+    }
 };
 
+// --- Middleware de CORS (Cross-Origin Resource Sharing) ---
+// Substitui TODAS as chamadas 'app.use(cors())' anteriores por esta ÚNICA chamada.
 app.use(cors(corsOptions));
+
 
 
 // NOTA DE PRODUÇÃO: Para segurança máxima, restrinja as origens:
 // app.use(cors({ origin: 'http://seu-frontend.com' }));
 
-logger.info("Middlewares essenciais (JSON, CORS) configurados.");
-
+logger.info("Middlewares essenciais (JSON, CORS) configurados com whitelist.");
 // --- SEÇÃO 3: CONEXÃO COM O BANCO DE DADOS (MONGODB) ---
 
 const MONGO_URI = process.env.MONGO_CONNECTION_STRING;

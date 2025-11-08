@@ -10,9 +10,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class AuthService {
 
   // O 'API_URL' agora aponta para o seu Servidor de Backend (D)
-  private readonly API_URL = 'http://172.19.50.25/api/auth'; 
+  private readonly API_URL = 'http://localhost:3000/api/auth'; 
   // O 'HOST_URL' aponta para os seus Servidores HTTP (A, B, C)
-  private readonly HOST_URL = 'http://www.meutrabalho.com.br';
+  private readonly HOST_URL = 'http://192.168.0.148';
   private readonly SESSION_KEY = 'rr-nexus-session-id';
 
   // --- NOSSOS "ESTADOS" GLOBAIS ---
