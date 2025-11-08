@@ -17,6 +17,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); // Para hashing de senhas
 const crypto = require('crypto');   // Para geração de tokens de sessão seguros
 const cors = require('cors');       // Para Cross-Origin Resource Sharing
+const swaggerJsdoc = require('swagger-jsdoc');     //  Lê comentários código
+const swaggerUi = require('swagger-ui-express');   //  Pega o JSON e cria página de documentação interativa
 
 // Carrega variáveis de ambiente do .env para process.env
 require('dotenv').config();
@@ -47,6 +49,36 @@ app.use(cors());
 
 logger.info("Middlewares essenciais (JSON, CORS) configurados.");
 
+// --- SEÇÃO 2.1: CONFIGURAÇÃO DO SWAGGER (DOCUMENTAÇÃO DA API) ---
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'API de Autenticação Centralizada',
+            version: '1.3.0', // Versão do app
+            description: 'API para gerenciamento de usuários e sessões (Backend)',
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}`, 
+                description: 'Servidor de Desenvolvimento',
+            },
+        ],
+    },
+    // Onde o swagger-jsdoc vai procurar os comentários da documentação:
+    apis: ['./src/api/routes/*.js'], 
+};
+
+// Gerar a especificação
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+// Criar a rota /api-docs para servir a documentação
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+logger.info(`Documentação da API disponível em http://localhost:${PORT}/api-docs`);
+
+
 // --- SEÇÃO 3: CONEXÃO COM O BANCO DE DADOS (MONGODB) ---
 
 const MONGO_URI = process.env.MONGO_CONNECTION_STRING;
@@ -66,16 +98,22 @@ const connectDB = async () => {
     }
 };
 
+logger.info(`Configuração do MongoDB pronta.`);
+
 // --- SEÇÃO 4: IMPORTAÇÃO DOS MODELS (SCHEMAS) ---
 
-const Usuario = require('./models/Usuario.js');
-const Sessao = require('./models/Sessao.js');
+const Usuario = require('./api/models/Usuario.js');
+const Sessao = require('./api/models/Sessao.js');
+
+logger.info(`Models (Schemas) importados: Usuario, Sessao.`);
 
 // --- SEÇÃO 5: DEFINIÇÃO DE ROTAS (ENDPOINTS DA API) ---
 
 // --- 5.1 Importação das Rotas ---
 // Importamos o arquivo de rotas de autenticação que acabamos de criar.
-const authRoutes = require('./routes/auth.js');
+const authRoutes = require('./api/routes/auth.js');
+
+logger.info(`Rotas importadas: authRoutes.`);
 
 // --- 5.2 Rotas Públicas (Health Check) ---
 
@@ -91,12 +129,16 @@ app.get('/', (req, res) => {
     });
 });
 
+logger.info(`Rota pública '/' (health check) definida.`);
+
 // --- 5.3 Rotas da Aplicação (Middleware de Roteamento) ---
 
 // Aqui está a "mágica":
 // Dizemos ao Express: "Qualquer requisição que comece com '/api/auth'
 // deve ser gerenciada pelo nosso arquivo 'authRoutes'".
 app.use('/api/auth', authRoutes);
+
+logger.info(`Rotas da aplicação montadas em '/api/auth'.`);
 
 
 /*
@@ -121,6 +163,8 @@ const startServer = async () => {
         logger.info(`Acesse em http://localhost:${PORT}`);
     });
 };
+
+logger.info(`Servidor iniciando...`);
 
 // Inicia a aplicação
 startServer();

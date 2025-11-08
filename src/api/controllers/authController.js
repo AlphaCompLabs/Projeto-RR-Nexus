@@ -13,8 +13,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const Usuario = require('./models/Usuario.js'); // Importa o Model de Usuário
-const Sessao = require('./models/Sessao.js');   // Importa o Model de Sessão
+const Usuario = require('../models/Usuario.js'); // Importa o Model de Usuário
+const Sessao = require('../models/Sessao.js');   // Importa o Model de Sessão
 
 // Copiamos o logger do index.js
 // (Uma melhoria futura seria mover isso para seu próprio módulo, ex: utils/logger.js)
