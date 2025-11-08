@@ -2,97 +2,95 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, catchError, map, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+// [MUDANÇA 1] Importe 'HttpResponse' para lermos os headers
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  // O 'API_URL' agora aponta para o seu Servidor de Backend (D)
-  private readonly API_URL = 'http://localhost:3000/api/auth'; 
-  // O 'HOST_URL' aponta para os seus Servidores HTTP (A, B, C)
-  private readonly HOST_URL = 'http://192.168.0.148';
+  // [MUDANÇA 2] Atualize suas URLs para o ambiente de produção
+  // (O IP/domínio do seu Backend)
+  private readonly API_URL = 'http://172.19.50.25/api/auth'; 
+  // (O domínio do seu Frontend, que passa pelo DNS)
+  private readonly HOST_URL = 'http://www.meutrabalho.com.br'; 
+  
   private readonly SESSION_KEY = 'rr-nexus-session-id';
 
   // --- NOSSOS "ESTADOS" GLOBAIS ---
   
-  // 1. O estado de login (True/False)
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-  // --- GARANTA QUE ESTA FUNÇÃO "GETTER" EXISTE ---
-  /**
-   * Retorna o valor booleano atual de isLoggedIn
-   */
   public get isLoggedIn(): boolean {
     return this.isLoggedInSubject.getValue();
   }
   
-  // 2. Os dados do UTILIZADOR (ex: 'aluno')
   public currentUser = new BehaviorSubject<any | null>(null);
-  
-  // 3. Os dados da SESSÃO (ex: ID, hora)
   public currentSession = new BehaviorSubject<any | null>(null);
+
+  // [MUDANÇA 3] Crie um novo 'Estado' para o hostname
+  // O 'validateToken' vai preencher isso, e o 'getServerHostname' vai ler.
+  private currentHostname = new BehaviorSubject<string>('Carregando...');
 
   constructor(
     private router: Router,
     private http: HttpClient
   ) {}
 
-  // --- LÓGICA DE VALIDAÇÃO (O Passo 6) ---
+  // --- LÓGICA DE VALIDAÇÃO ---
 
-  /**
-   * Chamado pelo AppComponent assim que a app carrega.
-   * Verifica o localStorage e valida com o backend.
-   */
   public validateSessionOnLoad(): void {
     const token = this.getToken();
-
     if (!token) {
-      // Se não há token, não há nada a fazer.
       return; 
     }
-
     console.log('AuthService: Token encontrado no localStorage. Validando...');
-    
-    // Se há token, chame a nossa função de validação
     this.validateToken(token).subscribe();
   }
 
   /**
    * Função central que faz o GET /session/validate
-   * Esta é chamada no F5 (pelo validateSessionOnLoad)
-   * E também DEPOIS de um login bem-sucedido.
+   * [ATUALIZADA] para ler o header X-Server-Name
    */
   private validateToken(token: string): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get<any>(`${this.API_URL}/session/validate`, { headers: headers })
+    // [MUDANÇA 4] Adicione "{ observe: 'response' }"
+    // Isso nos dá a resposta completa (com headers), não só o JSON.
+    return this.http.get<any>(`${this.API_URL}/session/validate`, { headers: headers, observe: 'response' })
       .pipe(
-        tap(response => {
-          // SUCESSO! O token é válido.
-          console.log('AuthService: Validação bem-sucedida.', response);
+        // [MUDANÇA 5] O tipo da resposta agora é 'HttpResponse<any>'
+        tap((response: HttpResponse<any>) => {
+          // SUCESSO!
           
-          // 1. Guarde os dados do utilizador
+          // [MUDANÇA 6] LEIA O HEADER DO NGINX!
+          const nginxHostname = response.headers.get('X-Server-Name');
+          if (nginxHostname) {
+            // E salve-o em nosso 'Estado'
+            this.currentHostname.next(nginxHostname);
+          }
+
+          // [MUDANÇA 7] O JSON agora está em 'response.body'
+          const responseBody = response.body;
+          
+          // O resto da lógica usa 'responseBody'
           this.currentUser.next({ 
-            username: response.username, 
-            userId: response.userId 
-          });;
-          // 2. Guarde os dados da sessão
-          this.currentSession.next({ 
-            sessionId: response.sessionId, 
-            loginTime: response.loginTime 
+            username: responseBody.username, 
+            userId: responseBody.userId 
           });
-          // 3. Confirme que estamos logados
+          this.currentSession.next({ 
+            sessionId: responseBody.sessionId, 
+            loginTime: responseBody.loginTime 
+          });
           this.isLoggedInSubject.next(true);
         }),
         catchError(error => {
-          // FALHA! (Token expirado ou inválido)
           console.warn('AuthService: Validação falhou. Limpando sessão.', error.error.error);
-          this.clearSession(); // Limpa o token mau
+          this.clearSession(); 
           this.router.navigate(['/']);
           return of(null);
         })
@@ -107,14 +105,14 @@ export class AuthService {
 
   public saveSession(sessionId: string): void {
     localStorage.setItem(this.SESSION_KEY, sessionId);
-    // (A definição do isLoggedInSubject agora é feita pelo validateToken)
   }
 
   public clearSession(): void {
     localStorage.removeItem(this.SESSION_KEY);
     this.isLoggedInSubject.next(false);
-    this.currentUser.next(null); // Limpa os dados do utilizador
-    this.currentSession.next(null); // Limpa os dados da sessão
+    this.currentUser.next(null); 
+    this.currentSession.next(null); 
+    this.currentHostname.next('Carregando...'); // [MUDANÇA 8] Limpa o hostname
     console.log('AuthService: Sessão limpa do localStorage e dos estados.');
   }
 
@@ -126,15 +124,10 @@ export class AuthService {
       .pipe(
         tap(response => {
           // SUCESSO NO LOGIN!
-          // 1. Guarde o novo token (sessionId)
           this.saveSession(response.sessionId);
           
-          // 2. CHAME A VALIDAÇÃO!
-          // Isto é crucial: agora que temos um token,
-          // chame o /validate para buscar TODOS os dados (incluindo a loginTime)
-          // O .subscribe() aqui "dispara" a chamada.
+          // O fluxo de 'validateToken' agora também buscará o hostname
           this.validateToken(response.sessionId).subscribe(() => {
-            // 3. Navegue para o perfil SÓ DEPOIS de validar
             this.router.navigate(['/meu-perfil']);
           });
         }),
@@ -149,7 +142,6 @@ export class AuthService {
   public logout(): Observable<any> {
     const sessionId = this.getToken();
     
-    // (O clearSession() agora é chamado no 'finalize')
     if (sessionId) {
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${sessionId}`
@@ -165,7 +157,7 @@ export class AuthService {
             return of(null);
           }),
           finalize(() => {
-            // 3. Limpe tudo e navegue
+            // Limpa tudo e navegue
             this.clearSession();
             this.router.navigate(['/']); 
           })
@@ -191,43 +183,28 @@ export class AuthService {
       );
   }
 
-  /**
-   * Tenta redefinir a senha de um usuário.
-   * Faz um POST real para o backend.
-   */
   public resetPassword(username: string, newPassword: string): Observable<any> {
-    
-    // O corpo da requisição que o seu backend espera
     const body = { username: username, newPassword: newPassword };
 
-    // 1. FAÇA A CHAMADA HTTP POST REAL
-    // (Assumindo que o seu amigo mapeou 'resetPassword' para esta rota)
     return this.http.post<any>(`${this.API_URL}/reset-password`, body)
       .pipe(
-        // 2. Se o registo for um SUCESSO
         tap(response => {
           console.log('AuthService: Senha redefinida com sucesso!', response.message);
         }),
-        
-        // 3. Se o registo FALHAR (ex: 404 Usuário não encontrado)
         catchError(error => {
           console.error('AuthService: Falha no reset da senha.', error.error);
-          throw error; // Passa o erro para o componente
+          throw error; 
         })
       );
   }
 
   /**
    * Pega o hostname do Servidor HTTP (A, B, ou C)
+   * [ATUALIZADO] Não faz mais uma chamada HTTP.
+   * Apenas retorna o 'Estado' (Subject) que o 'validateToken' já preencheu.
    */
   public getServerHostname(): Observable<string> {
-    return this.http.get<any>(`${this.HOST_URL}/api/server-info`)
-      .pipe(
-        map(response => response.hostname), // Extrai o 'hostname' do JSON
-        catchError(error => {
-          console.error('AuthService: Falha ao buscar hostname do HTTP server.', error);
-          return of('Servidor Desconhecido'); // Fallback
-        })
-      );
+    // [MUDANÇA 9] Substitui a chamada HTTP por um retorno do 'Estado'
+    return this.currentHostname.asObservable();
   }
 }

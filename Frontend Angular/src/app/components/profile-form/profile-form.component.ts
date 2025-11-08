@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core'; // 1. Importe OnDestroy
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Subscription } from 'rxjs'; // 2. Importe Subscription
-import { AuthService } from '../../services/auth.service'; // 3. Importe o AuthService
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-profile-form',
@@ -10,26 +10,23 @@ import { AuthService } from '../../services/auth.service'; // 3. Importe o AuthS
   templateUrl: './profile-form.component.html',
   styleUrl: './profile-form.component.css'
 })
-// 4. Implemente OnInit e OnDestroy
 export class ProfileFormComponent implements OnInit, OnDestroy {
 
-  // 5. Remova os dados simulados!
   public username: string = 'Carregando...';
   public userId: string = 'Carregando...';
   public sessionId: string = 'Carregando...';
-  public serverName: string = '...'; // (Ver Nota)
-  public loginTime: Date | null = null; // (Começa como nulo)
+  public serverName: string = '...';
+  public loginTime: Date | null = null;
 
-  // 6. Guarde as nossas "escutas"
+  // Guarde as nossas "escutas"
   private userSub!: Subscription;
   private sessionSub!: Subscription;
+  private hostSub!: Subscription; // Para o hostname
 
-  // 7. Injete o AuthService
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
     // 1. "Escute" os dados do Utilizador (username, userId)
-    // (Isto vem da validação da sessão que o AuthGuard já fez)
     this.userSub = this.authService.currentUser.subscribe(user => {
       if (user) {
         this.username = user.username;
@@ -45,9 +42,8 @@ export class ProfileFormComponent implements OnInit, OnDestroy {
       }
     });
 
-    // 3. FAÇA A NOVA CHAMADA PARA O HOSTNAME
-    // Pede ao servidor HTTP (A, B, ou C) o seu nome
-    this.authService.getServerHostname().subscribe(hostname => {
+    // 3. "Escute" o Hostname (que o AuthService agora tem)
+    this.hostSub = this.authService.getServerHostname().subscribe(hostname => {
       this.serverName = hostname; // Preenche o campo "Servidor:"
     });
   }
@@ -56,5 +52,6 @@ export class ProfileFormComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.userSub) this.userSub.unsubscribe();
     if (this.sessionSub) this.sessionSub.unsubscribe();
+    if (this.hostSub) this.hostSub.unsubscribe();
   }
 }
