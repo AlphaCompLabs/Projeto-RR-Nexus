@@ -59,6 +59,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [
+              "localhost",
+              "www.meutrabalho.com.br"
+          ]},
           "configurations": {
             "production": {
               "buildTarget": "projeto-rr-nexus:build:production"
