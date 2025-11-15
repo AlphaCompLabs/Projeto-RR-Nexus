@@ -13,8 +13,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const Usuario = require('./models/Usuario.js');
-const Sessao = require('./models/Sessao.js');
+const Usuario = require('../models/Usuario.js');
+const Sessao = require('../models/Sessao.js');
 
 const logger = {
     info: (message) => console.log(`[INFO] ${new Date().toISOString()} - ${message}`),
