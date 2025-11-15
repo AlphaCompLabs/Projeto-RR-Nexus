@@ -14,10 +14,13 @@
 
 const mongoose = require('mongoose');
 
-// Desestruturação de 'Schema' é uma convenção comum para facilitar a leitura
+//  Desestruturar 'Schema' é uma convenção que torna o
+// código mais limpo e legível.
 const Schema = mongoose.Schema;
 
 // --- SEÇÃO 1: DEFINIÇÃO DO SCHEMA (sessaoSchema) ---
+//  O schema é o "contrato" dos dados. Defina tipos,
+// validações (required), restrições (unique) e referências (ref) aqui.
 
 const sessaoSchema = new Schema(
     {
@@ -29,7 +32,7 @@ const sessaoSchema = new Schema(
             type: String,
             required: [true, 'O sessionId é obrigatório.'], // Mensagem de erro customizada
             unique: true,
-            index: true, // Otimiza performance em buscas (ex: validação de sessão)
+            index: true, //  Indexar campos usados em 'findOne' (validação).
         },
 
         /**
@@ -38,9 +41,9 @@ const sessaoSchema = new Schema(
          */
         userId: {
             type: Schema.Types.ObjectId,
-            ref: 'Usuario', // Chave estrangeira referenciando o Model 'Usuario'
+            ref: 'Usuario', //  'ref' é crucial para usar 'populate()'.
             required: [true, 'A sessão deve estar vinculada a um usuário (userId).'],
-            index: true, // Otimiza buscas por "todas as sessões de um usuário"
+            index: true, //  Indexar para buscas (ex: invalidar sessões do user).
         },
 
         /**
@@ -58,7 +61,11 @@ const sessaoSchema = new Schema(
          * timestamps: true -> Adiciona automaticamente os campos 'createdAt' e 'updatedAt'
          * em cada documento. Útil para auditoria e debugging.
          */
+        //  'timestamps: true' é uma melhor prática para
+        // quase todos os models.
         timestamps: true,
+        //  Definir 'collection' explicitamente evita
+        // surpresas com a pluralização automática do Mongoose.
         collection: 'sessoes'
     }
 );
@@ -74,6 +81,8 @@ const sessaoSchema = new Schema(
  * Isso garante que sessões expiradas sejam limpas automaticamente do banco,
  * mantendo a coleção performática e segura.
  */
+//  Índices complexos ou de otimização (como TTL)
+// são definidos fora do schema principal para maior clareza.
 sessaoSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 // --- SEÇÃO 3: EXPORTAÇÃO DO MODEL ---

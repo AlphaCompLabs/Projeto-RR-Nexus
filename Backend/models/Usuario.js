@@ -98,24 +98,7 @@ usuarioSchema.pre('save', async function(next) {
     }
 });
 
-// --- SEÇÃO 3: MÉTODOS DE INSTÂNCIA (Exemplo futuro) ---
-
-/**
- * NOTA: Embora não esteja implementado aqui, um método para *comparar*
- * a senha seria adicionado aqui.
- *
- * Exemplo (você já faz isso no /login, mas centralizar é uma boa prática):
- *
- * usuarioSchema.methods.comparePassword = function(candidatePassword) {
- * return bcrypt.compare(candidatePassword, this.password);
- * };
- *
- * Uso no /login:
- * const isMatch = await user.comparePassword(password);
- */
-
-
-// --- SEÇÃO 4: EXPORTAÇÃO DO MODEL ---
+// --- SEÇÃO 3: EXPORTAÇÃO DO MODEL ---
 
 /**
  * Compila o schema em um Model.

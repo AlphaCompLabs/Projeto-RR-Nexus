@@ -13,5 +13,5 @@ Este documento descreve a estratégia de testes unitários e de integração par
 1.  Garanta que o servidor **não** esteja rodando (`npm run dev` deve estar parado).
 2.  Na raiz da pasta `/Backend`, execute o comando:
 
-```bash
-npm test
+> npm test
+
