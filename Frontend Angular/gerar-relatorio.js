@@ -1,14 +1,25 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.8.2
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Script Node.js auxiliar para gerar um relatório de testes em Markdown.
+ * Lê o JSON gerado pelo Karma e formata uma tabela visual.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES E CAMINHOS ---
 const fs = require('fs');
 const path = require('path');
 
-// 1. Configuração dos Caminhos
-// Verifique se o nome da pasta 'projeto-rr-nexus' está igual ao gerado no coverage
+// Configuração dos Caminhos
 const coverageFolder = path.join(__dirname, 'coverage/projeto-rr-nexus');
 const jsonPath = path.join(coverageFolder, 'coverage-summary.json');
 const mdPath = path.join(__dirname, 'TESTE_UNITARIO.md');
 
 try {
-  // 2. Validação
+  // --- SEÇÃO 2: VALIDAÇÃO ---
   if (!fs.existsSync(jsonPath)) {
     throw new Error(`Arquivo não encontrado: ${jsonPath}. \nRode 'ng test --no-watch --code-coverage' antes de gerar o relatório.`);
   }
@@ -17,7 +28,7 @@ try {
   const total = report.total;
   const files = Object.keys(report).filter(key => key !== 'total');
 
-  // 3. Funções Auxiliares
+  // --- SEÇÃO 3: FUNÇÕES AUXILIARES ---
   const getIcon = (pct) => {
     if (pct >= 95) return '🟢';
     if (pct >= 80) return '🟡';
@@ -29,9 +40,9 @@ try {
     return `**${metric.pct}%** (${metric.covered}/${metric.total}) ${getIcon(metric.pct)}`;
   };
 
-  // 4. Início do Markdown
+  // --- SEÇÃO 4: MONTAGEM DO MARKDOWN ---
   let content = `
-# Testes Unitários - FrontEnd - RR Nexus
+# Relatório de Testes Unitários - RR Nexus
 
 **Data:** ${new Date().toLocaleString('pt-BR')}
 
@@ -52,12 +63,11 @@ try {
 | :--- | ---: | ---: | ---: | ---: |
 `;
 
-  // 5. Loop pelos arquivos
+  // --- SEÇÃO 5: LOOP DE ARQUIVOS ---
   files.forEach(filePath => {
     const data = report[filePath];
     
-    // Limpeza do caminho do arquivo (para remover C:/Users/...)
-    // Tenta pegar o caminho relativo a partir de 'src' ou da raiz
+    // Limpeza do caminho do arquivo
     let displayPath = filePath;
     const srcIndex = filePath.indexOf('src');
     
@@ -77,7 +87,7 @@ try {
 > *Relatório gerado automaticamente via script.*
 `;
 
-  // 6. Salvar
+  // --- SEÇÃO 6: SALVAR ARQUIVO ---
   fs.writeFileSync(mdPath, content);
   console.log(`Relatório Markdown DETALHADO gerado com sucesso em: \n   ${mdPath}`);
 

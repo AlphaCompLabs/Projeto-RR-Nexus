@@ -1,10 +1,23 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.1.0
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Configuração do Karma Test Runner.
+ * Define frameworks, plugins e reporters para execução dos testes e cobertura.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: EXPORTAÇÃO DA CONFIGURAÇÃO ---
 module.exports = function (config) {
   config.set({
     basePath: '',
-    // 1. FRAMEWORKS: Deixe apenas o jasmine
+    
+    // --- SEÇÃO 2: FRAMEWORKS ---
     frameworks: ['jasmine'], 
     
-    // 2. PLUGINS: Removemos o plugin do angular-devkit que estava dando erro
+    // --- SEÇÃO 3: PLUGINS ---
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
@@ -12,6 +25,7 @@ module.exports = function (config) {
       require('karma-coverage')
     ],
 
+    // --- SEÇÃO 4: CONFIGURAÇÃO DO CLIENTE ---
     client: {
       jasmine: {
         // você pode adicionar configurações do jasmine aqui se precisar
@@ -23,7 +37,7 @@ module.exports = function (config) {
       suppressAll: true 
     },
 
-    // Configuração do relatório (mantemos igual para gerar o TXT)
+    // --- SEÇÃO 5: CONFIGURAÇÃO DE COBERTURA (REPORTERS) ---
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/projeto-rr-nexus'),
       subdir: '.',
@@ -33,6 +47,7 @@ module.exports = function (config) {
       ]
     },
 
+    // --- SEÇÃO 6: CONFIGURAÇÕES DE EXECUÇÃO ---
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,

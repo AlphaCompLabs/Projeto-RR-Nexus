@@ -1,27 +1,32 @@
 /*
-# =====================================================================================
-# Projeto RR-Nexus
-# Versão: 1.2.0
-# Autor(es): Elisa / FrontEnd
-# Data: 02/11/2025
-# Descrição: Definição de estilo global para o frontend.
-
-# Alteração: Adicionando cores branco e preto.
-# =====================================================================================
-*/
-
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.5.8
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Configuração do Tailwind CSS.
+ * Define a paleta de cores personalizada (Nexus Theme), fontes e caminhos de conteúdo.
+ *
+ * Alteração: Adicionando cores branco e preto.
+ * =====================================================================================
+ */
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  
+  // --- SEÇÃO 1: CONTEÚDO ---
   content: [
     "./src/**/*.{html,ts}",
   ],
+
+  // --- SEÇÃO 2: TEMA E EXTENSÕES ---
   theme: {
     fontFamily: {
       'sans': ['Inter', 'sans-serif'], // 'Inter' é o novo padrão
       'baseet': ['Baseet', 'sans-serif'],
     },
     extend: {
+      // Paleta de cores personalizada do projeto
       colors: {
         'nexus-black': '#000000',
         'nexus-darkest': '#130220',
@@ -37,6 +42,7 @@ module.exports = {
         'nexus-cream': '#FFFEE3',
         'nexus-white': '#FFFFFF',
       },
+      // Gradientes de fundo
       backgroundImage: {
         'header-gradient': "linear-gradient(to bottom, #130220, #130220, #220A35, #220A35, #220A35, #130220)",
         'login-gradient': "linear-gradient(to bottom, #130220, #220A35, #220A35, #220A35, #220A35)",
@@ -44,5 +50,7 @@ module.exports = {
       }
     },
   },
+  
+  // --- SEÇÃO 3: PLUGINS ---
   plugins: [],
 }
