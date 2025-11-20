@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+
+    "test:relatorio": "ng test --no-watch --code-coverage && node gerar-relatorio.js"
   },
   "prettier": {
     "printWidth": 100,
