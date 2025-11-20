@@ -217,4 +217,36 @@ export class AuthService {
         })
       );
   }
+
+  // --- NOVO MÉTODO PARA O GUARD ---
+  public checkAuth(): Observable<boolean> {
+    const token = this.getToken();
+
+    // 1. Se não tem token salvo, nem tenta ir no backend.
+    if (!token) {
+      return of(false);
+    }
+
+    // 2. Se tem token, valida no backend e retorna um Observable<boolean>
+    // Note que não usamos validateToken() aqui para não duplicar lógicas de redirect
+    // Queremos apenas saber: É válido ou não?
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+    
+    return this.http.get<any>(`${this.API_URL}/session/validate`, { headers: headers }).pipe(
+      tap((responseBody: any) => {
+        // Se deu certo, atualiza os estados globais para a aplicação ficar ciente
+        this.currentUser.next({ 
+            username: responseBody.username, 
+            userId: responseBody.userId 
+        });
+        this.isLoggedInSubject.next(true);
+      }),
+      map(() => true), // Transforma a resposta de sucesso em TRUE para o Guard
+      catchError(() => {
+        // Se deu erro (401, 500), limpa tudo e retorna FALSE
+        this.clearSession();
+        return of(false);
+      })
+    );
+  }
 }

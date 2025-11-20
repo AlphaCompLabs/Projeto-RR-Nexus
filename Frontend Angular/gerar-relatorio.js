@@ -31,7 +31,7 @@ try {
 
   // 4. Início do Markdown
   let content = `
-# Relatório de Cobertura de Testes - RR Nexus
+# Testes Unitários - FrontEnd - RR Nexus
 
 **Data:** ${new Date().toLocaleString('pt-BR')}
 

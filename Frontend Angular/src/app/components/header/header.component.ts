@@ -1,9 +1,22 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.7.1
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Componente de cabeçalho que gerencia navegação inicial e estado visual
+ * de login/perfil.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { Component, OnDestroy } from '@angular/core';
 import { ViewportScroller, CommonModule } from '@angular/common'; 
-import { Router } from '@angular/router'; // O Router já cá estava
+import { Router } from '@angular/router'; 
 import { Subscription } from 'rxjs'; 
 import { AuthService } from '../../services/auth.service';
 
+// --- SEÇÃO 2: DEFINIÇÃO DO COMPONENTE ---
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -13,15 +26,17 @@ import { AuthService } from '../../services/auth.service';
 })
 export class HeaderComponent implements OnDestroy {
 
+  // --- SEÇÃO 3: PROPRIEDADES ---
   public isLoggedIn: boolean = false;
   private authSubscription: Subscription;
 
+  // --- SEÇÃO 4: INICIALIZAÇÃO E DEPENDÊNCIAS ---
   constructor(
     private scroller: ViewportScroller,
     private authService: AuthService,
-    private router: Router // O Router é necessário para a navegação
+    private router: Router 
   ) {
-    // A sua "escuta" do estado de login (está perfeita)
+    // Escuta o estado de login para alternar o botão entre "LOGIN" e "PERFIL"
     this.authSubscription = this.authService.isLoggedIn$.subscribe(
       status => {
         this.isLoggedIn = status;
@@ -29,23 +44,29 @@ export class HeaderComponent implements OnDestroy {
     );
   }
 
-  // Função para rolar para o login (quando deslogado)
+  // --- SEÇÃO 5: MÉTODOS DE AÇÃO ---
+
+  /**
+   * Chamado pelo botão "LOGIN" (quando usuário NÃO está logado).
+   * Realiza a rolagem suave da página até a seção do formulário de login.
+   */
   public scrollToLogin(): void {
     this.scroller.scrollToAnchor('login-form-section');
   }
 
-  // --- MUDANÇA AQUI ---
-  // A função logout() foi removida.
-  
-  // 1. ADICIONE A NOVA FUNÇÃO DE NAVEGAÇÃO
   /**
-   * Chamado pelo botão "PERFIL" (quando logado)
-   * Navega para a página de perfil.
+   * Chamado pelo botão "PERFIL" (quando usuário JÁ está logado).
+   * Navega o usuário para a rota interna de perfil (/meu-perfil).
    */
   public navigateToProfile(): void {
     this.router.navigate(['/meu-perfil']);
   }
 
+  // --- SEÇÃO 6: CICLO DE VIDA (DESTRUCTION) ---
+
+  /**
+   * Limpa a subscrição do AuthService para evitar memory leaks.
+   */
   ngOnDestroy(): void {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();

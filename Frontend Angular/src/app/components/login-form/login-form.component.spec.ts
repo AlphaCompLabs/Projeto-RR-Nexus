@@ -1,3 +1,15 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.1.2
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Testes unitários abrangentes para o LoginFormComponent.
+ * Cobre fluxos de Login, Cadastro, Reset de Senha e manipulação de UI.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginFormComponent } from './login-form.component';
 import { AuthService } from '../../services/auth.service';
@@ -7,12 +19,14 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ElementRef } from '@angular/core';
 
+// --- SEÇÃO 2: SUÍTE DE TESTES ---
 describe('LoginFormComponent', () => {
   let component: LoginFormComponent;
   let fixture: ComponentFixture<LoginFormComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
+  // --- SEÇÃO 3: CONFIGURAÇÃO (SETUP) ---
   beforeEach(async () => {
     const authSpy = jasmine.createSpyObj('AuthService', ['login', 'register', 'resetPassword']);
     const rSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -42,9 +56,7 @@ describe('LoginFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  // ==========================================================================
-  // 1. TESTES DE INTERFACE E VISIBILIDADE (TOGGLES)
-  // ==========================================================================
+  // --- SEÇÃO 4: TESTES DE INTERFACE E VISIBILIDADE (TOGGLES) ---
 
   it('deve alternar a visibilidade da senha de login', () => {
     component.showPassword = false;
@@ -66,9 +78,7 @@ describe('LoginFormComponent', () => {
     expect(component.showNewPassword).toBeTrue();
   });
 
-  // ==========================================================================
-  // 2. TESTES DE LOGIN (Validacao e Lógica)
-  // ==========================================================================
+  // --- SEÇÃO 5: TESTES DE LOGIN (VALIDAÇÃO E LÓGICA) ---
 
   it('NÃO deve chamar login se os campos estiverem vazios', () => {
     component.username = '';
@@ -100,12 +110,10 @@ describe('LoginFormComponent', () => {
     expect(component.loginErrorMessage).toBe('Usuário ou senha não encontrado.');
   });
 
-  // ==========================================================================
-  // 3. TESTES DO POP-UP "ESQUECI MINHA SENHA"
-  // ==========================================================================
+  // --- SEÇÃO 6: TESTES DO POP-UP "ESQUECI MINHA SENHA" ---
 
   it('deve abrir e fechar o modal de Esqueci Senha corretamente', () => {
-    const event = new Event('click'); // Simula o evento do mouse
+    const event = new Event('click'); 
     
     component.openForgotPassword(event);
     expect(component.showForgotPassword).toBeTrue();
@@ -113,7 +121,7 @@ describe('LoginFormComponent', () => {
 
     component.closeForgotPassword();
     expect(component.showForgotPassword).toBeFalse();
-    expect(component.forgotUsername).toBe(''); // Verifica se limpou os campos
+    expect(component.forgotUsername).toBe(''); 
   });
 
   it('NÃO deve resetar senha se campos vazios', () => {
@@ -151,7 +159,7 @@ describe('LoginFormComponent', () => {
   it('deve tratar erro desconhecido no resetPassword', () => {
     component.forgotUsername = 'user';
     component.newPassword = '123';
-    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ error: {} }))); // Erro sem mensagem
+    authServiceSpy.resetPassword.and.returnValue(throwError(() => ({ error: {} }))); 
 
     component.onResetPassword();
 
@@ -164,9 +172,7 @@ describe('LoginFormComponent', () => {
     expect(component.showForgotPassword).toBeFalse();
   });
 
-  // ==========================================================================
-  // 4. TESTES DO POP-UP "CADASTRO" (SIGN UP)
-  // ==========================================================================
+  // --- SEÇÃO 7: TESTES DO POP-UP "CADASTRO" (SIGN UP) ---
 
   it('deve abrir e fechar o modal de Cadastro', () => {
     const event = new Event('click');
@@ -187,7 +193,7 @@ describe('LoginFormComponent', () => {
 
   it('NÃO deve cadastrar se senha curta (< 6)', () => {
     component.signUpUsername = 'teste';
-    component.signUpPassword = '123'; // Curta
+    component.signUpPassword = '123'; 
     component.onSignUp();
     expect(component.signUpMessage).toContain('6 caracteres');
     expect(authServiceSpy.register).not.toHaveBeenCalled();
@@ -216,17 +222,14 @@ describe('LoginFormComponent', () => {
     expect(component.showSignUp).toBeFalse();
   });
 
-  // ==========================================================================
-  // 5. TESTES DE TECLADO E FOCO (ViewChilds)
-  // ==========================================================================
+  // --- SEÇÃO 8: TESTES DE TECLADO E FOCO (ViewChilds) ---
 
   it('deve focar no campo de senha ao dar enter no usuario', () => {
-    // Mockamos o ElementRef nativo
     const mockElementRef = { nativeElement: { focus: jasmine.createSpy('focus') } };
     component.passwordField = mockElementRef as unknown as ElementRef;
 
     const event = new Event('keydown');
-    spyOn(event, 'preventDefault'); // Verifica se preveniu o default
+    spyOn(event, 'preventDefault'); 
 
     component.focusPassword(event);
 
@@ -271,22 +274,17 @@ describe('LoginFormComponent', () => {
     expect(mockButton.click).toHaveBeenCalled();
   });
 
-  // ==========================================================================
-  // 6. O "PULO DO GATO" PARA O 100% (TESTES DE SEGURANÇA / SAFETY CHECKS)
-  // ==========================================================================
+  // --- SEÇÃO 9: TESTES DE SEGURANÇA / SAFETY CHECKS ---
 
   it('NÃO deve tentar focar no campo de senha se ele não existir (undefined)', () => {
-    // Forçamos o ViewChild a ser undefined para testar o "if (this.passwordField)" dando false
     component.passwordField = undefined as any;
     
     const event = new Event('keydown');
     spyOn(event, 'preventDefault');
 
-    // Executa a função. Se não quebrar e chamar o preventDefault, o teste passa.
     component.focusPassword(event);
 
     expect(event.preventDefault).toHaveBeenCalled();
-    // Não esperamos que focus() seja chamado, pois o elemento não existe
   });
 
   it('NÃO deve tentar focar na senha de cadastro se o elemento não existir', () => {
@@ -304,8 +302,6 @@ describe('LoginFormComponent', () => {
     component.signUpUsername = 'user';
     component.signUpPassword = '123456';
 
-    // Simulamos um erro que NÃO tem a estrutura padrão { error: { error: '...' } }
-    // Isso força o código a cair no "else { this.signUpMessage = 'Ocorreu um erro desconhecido.' }"
     const erroBizarro = { status: 500, statusText: 'Server Error' }; 
     authServiceSpy.register.and.returnValue(throwError(() => erroBizarro));
 

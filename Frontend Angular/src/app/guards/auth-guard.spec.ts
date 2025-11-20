@@ -1,67 +1,83 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.9.1
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Testes unitários para o AuthGuard.
+ * Verifica se a rota é protegida corretamente esperando a validação do backend.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { TestBed } from '@angular/core/testing';
-import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { authGuard } from './auth-guard';
+import { Router } from '@angular/router';
+import { AuthGuard } from './auth-guard'; // Importando a CLASSE correta
 import { AuthService } from '../services/auth.service';
+import { of, Observable } from 'rxjs';
 
-describe('authGuard', () => {
-  // Helper para executar a guarda dentro do contexto de injeção do Angular
-  const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => authGuard(...guardParameters));
-
+// --- SEÇÃO 2: SUÍTE DE TESTES ---
+describe('AuthGuard', () => {
+  let guard: AuthGuard;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
+  // --- SEÇÃO 3: CONFIGURAÇÃO (SETUP) ---
   beforeEach(() => {
-    // Cria os Spies (Simulações)
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    
-    // Simula a propriedade 'isLoggedIn' do AuthService
-    authServiceSpy = jasmine.createSpyObj('AuthService', [], {
-      isLoggedIn: false // Valor padrão inicial
-    });
+    // Criamos Mocks para as dependências
+    const authSpy = jasmine.createSpyObj('AuthService', ['checkAuth']);
+    const rSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy }
+        AuthGuard,
+        { provide: AuthService, useValue: authSpy },
+        { provide: Router, useValue: rSpy }
       ]
     });
+
+    guard = TestBed.inject(AuthGuard);
+    authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
   });
 
   it('deve ser criado', () => {
-    expect(executeGuard).toBeTruthy();
+    expect(guard).toBeTruthy();
   });
 
-  it('deve permitir o acesso (return true) se o usuário estiver logado', () => {
-    // ARRANGE: Simula que o usuário ESTÁ logado
-    // Acessamos o getter espião e forçamos o retorno true
-    (Object.getOwnPropertyDescriptor(authServiceSpy, 'isLoggedIn')?.get as jasmine.Spy).and.returnValue(true);
+  // --- SEÇÃO 4: TESTES DE PERMISSÃO ---
 
-    const route = {} as ActivatedRouteSnapshot;
-    const state = {} as RouterStateSnapshot;
+  /**
+   * Cenário: Token válido e Backend responde OK.
+   * O Guard deve retornar TRUE e permitir a navegação.
+   */
+  it('deve PERMITIR acesso se checkAuth retornar true', (done) => {
+    // Simula o backend respondendo "Sim, está logado"
+    authServiceSpy.checkAuth.and.returnValue(of(true));
 
-    // ACT: Executa a guarda
-    const result = executeGuard(route, state);
-
-    // ASSERT: Verifica se permitiu
-    expect(result).toBeTrue();
-    // Garante que NÃO redirecionou
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
+    // Como o canActivate retorna um Observable, precisamos fazer subscribe
+    (guard.canActivate() as Observable<boolean>).subscribe(podeEntrar => {
+      expect(podeEntrar).toBeTrue();
+      done(); // Avisa o Jasmine que o teste assíncrono acabou
+    });
   });
 
-  it('deve bloquear o acesso (return false) e redirecionar para "/" se NÃO estiver logado', () => {
-    // ARRANGE: Simula que o usuário NÃO ESTÁ logado
-    (Object.getOwnPropertyDescriptor(authServiceSpy, 'isLoggedIn')?.get as jasmine.Spy).and.returnValue(false);
+  // --- SEÇÃO 5: TESTES DE BLOQUEIO ---
 
-    const route = {} as ActivatedRouteSnapshot;
-    const state = {} as RouterStateSnapshot;
+  /**
+   * Cenário: Sem token ou Backend responde Erro/Expirado.
+   * O Guard deve retornar FALSE e redirecionar para home.
+   */
+  it('deve BLOQUEAR acesso e redirecionar se checkAuth retornar false', (done) => {
+    // Simula o backend respondendo "Não, token inválido"
+    authServiceSpy.checkAuth.and.returnValue(of(false));
 
-    // ACT: Executa a guarda
-    const result = executeGuard(route, state);
-
-    // ASSERT: Verifica se bloqueou
-    expect(result).toBeFalse();
-    // Verifica se chamou o roteador para ir para a página de login
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+    (guard.canActivate() as Observable<boolean>).subscribe(podeEntrar => {
+      expect(podeEntrar).toBeFalse();
+      
+      // Verifica se chutou o usuário para a tela de login
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+      done();
+    });
   });
 });

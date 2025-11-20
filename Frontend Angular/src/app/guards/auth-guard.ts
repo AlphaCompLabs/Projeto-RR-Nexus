@@ -1,24 +1,26 @@
-import { inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-/**
- * Esta é a nossa Guarda de Rota!
- * Ela vai proteger a página de perfil.
- */
-export const authGuard: CanActivateFn = (route, state) => {
-  
-  // 1. Injete os nossos serviços
-  const authService = inject(AuthService);
-  const router = inject(Router);
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard implements CanActivate {
 
-  // 2. Verifique o estado de login (usando o "getter" que criámos)
-  if (authService.isLoggedIn) {
-    return true; // Está logado. Pode aceder à página.
+  constructor(private authService: AuthService, private router: Router) {}
+
+  canActivate(): Observable<boolean> {
+    // O Guard chama o método que criamos
+    return this.authService.checkAuth().pipe(
+      tap((isAuthenticated) => {
+        if (!isAuthenticated) {
+          console.log('AuthGuard: Acesso negado. Redirecionando...');
+          this.router.navigate(['/']);
+        }
+      })
+    );
   }
+}
 
-  // 3. NÃO está logado.
-  console.log('AuthGuard: Acesso bloqueado! A redirecionar para o login.');
-  router.navigate(['/']); // Redireciona para a página de login
-  return false; // Bloqueia a navegação para '/meu-perfil'
-};

@@ -1,3 +1,14 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.2.5
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Testes unitários do HeaderComponent (navegação e estado reativo).
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeaderComponent } from './header.component';
 import { AuthService } from '../../services/auth.service';
@@ -6,23 +17,24 @@ import { ViewportScroller } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
+// --- SEÇÃO 2: SUÍTE DE TESTES ---
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   
-  // Spies (espiões) para simular as dependências
+  // Mocks e Spies
   let authServiceSpy: any;
   let routerSpy: jasmine.SpyObj<Router>;
   let scrollerSpy: jasmine.SpyObj<ViewportScroller>;
   
-  // Subject para controlar o estado de login durante o teste
   let isLoggedInSubject: BehaviorSubject<boolean>;
 
+  // --- SEÇÃO 3: CONFIGURAÇÃO (SETUP) ---
   beforeEach(async () => {
     // 1. Configura o estado inicial (deslogado)
     isLoggedInSubject = new BehaviorSubject<boolean>(false);
 
-    // 2. Cria os Mocks (Simulações)
+    // 2. Cria os Mocks
     authServiceSpy = {
       isLoggedIn$: isLoggedInSubject.asObservable()
     };
@@ -40,20 +52,20 @@ describe('HeaderComponent', () => {
 
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges(); // Dispara o ngOnInit
+    fixture.detectChanges(); 
   });
 
   it('deve ser criado', () => {
     expect(component).toBeTruthy();
   });
 
-  // --- Testes de Estado DESLOGADO ---
+  // --- SEÇÃO 4: TESTES DE ESTADO (DESLOGADO) ---
 
   it('deve iniciar como deslogado e mostrar o botão "LOGIN"', () => {
     expect(component.isLoggedIn).toBeFalse();
     
-    // Procura pelo texto "LOGIN" no template
-    const loginButton = fixture.debugElement.query(By.css('a')); // O botão de login é um <a>
+    // Procura pelo elemento <a> (botão de login)
+    const loginButton = fixture.debugElement.query(By.css('a')); 
     expect(loginButton).toBeTruthy();
     expect(loginButton.nativeElement.textContent).toContain('LOGIN');
   });
@@ -62,15 +74,16 @@ describe('HeaderComponent', () => {
     const loginButton = fixture.debugElement.query(By.css('a'));
     loginButton.triggerEventHandler('click', null);
 
+    // Verifica se chamou a função de âncora
     expect(scrollerSpy.scrollToAnchor).toHaveBeenCalledWith('login-form-section');
   });
 
-  // --- Testes de Estado LOGADO ---
+  // --- SEÇÃO 5: TESTES DE ESTADO (LOGADO) ---
 
   it('deve mostrar o botão "PERFIL" quando o usuário estiver logado', () => {
     // Simula o login mudando o valor do Subject
     isLoggedInSubject.next(true);
-    fixture.detectChanges(); // Atualiza o HTML
+    fixture.detectChanges(); // Atualiza a view
 
     expect(component.isLoggedIn).toBeTrue();
 
@@ -93,7 +106,7 @@ describe('HeaderComponent', () => {
     const profileButton = fixture.debugElement.query(By.css('button'));
     profileButton.triggerEventHandler('click', null);
 
-    // Verifica se o roteador foi chamado
+    // Verifica navegação
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/meu-perfil']);
   });
 });

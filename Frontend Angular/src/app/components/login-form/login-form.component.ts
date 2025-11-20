@@ -1,34 +1,71 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.8.4
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Componente responsável pelo formulário de autenticação (Login),
+ * recuperação de senha e cadastro de novos usuários.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Vamos precisar do CommonModule para o @if
+import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms'; 
-// 1. IMPORTE O NOSSO NOVO SERVIÇO
 import { AuthService } from '../../services/auth.service';
 
+// --- SEÇÃO 2: DEFINIÇÃO DO COMPONENTE ---
 @Component({
   selector: 'app-login-form',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Mantenha o CommonModule
+  imports: [CommonModule, FormsModule], 
   templateUrl: './login-form.component.html',
   styleUrl: './login-form.component.css'
 })
 export class LoginFormComponent {
   
+  // --- SEÇÃO 3: PROPRIEDADES DO LOGIN ---
   public username: string = '';
   public password: string = '';
   public showPassword: boolean = false;
   public loginErrorMessage: string = ''; 
   
+  /** Referência ao input de senha para focar via teclado */
   @ViewChild('passwordInput') passwordField!: ElementRef;
   @ViewChild('signUpPasswordInput') signUpPasswordField!: ElementRef;
 
-  // 2. INJETE O AuthService (e o Router)
+  // --- SEÇÃO 4: PROPRIEDADES DE RECUPERAÇÃO DE SENHA ---
+  public showForgotPassword: boolean = false;
+  public forgotPasswordStep: number = 1;
+  public forgotUsername: string = '';
+  public foundPassword: string = '';
+  public foundUsernameDisplay: string = '';
+  public showPasswordMessage: string = '';
+  public newPassword: string = '';
+  public showNewPassword: boolean = false;
+
+  // --- SEÇÃO 5: PROPRIEDADES DE CADASTRO (SIGN UP) ---
+  public showSignUp: boolean = false;
+  public signUpStep: number = 1;
+  public signUpUsername: string = '';
+  public signUpPassword: string = '';
+  public signUpMessage: string = '';
+  public showSignUpPassword: boolean = false;
+
+  // --- SEÇÃO 6: INICIALIZAÇÃO ---
   constructor(
     private router: Router,
-    private authService: AuthService // <-- ADICIONADO
+    private authService: AuthService 
   ) { }
 
-  // 3. ATUALIZE O 'onLogin()'
+  // --- SEÇÃO 7: LÓGICA DE LOGIN ---
+
+  /**
+   * Executa a tentativa de login chamando o AuthService.
+   * Se sucesso, o serviço redireciona. Se falha, exibe erro.
+   */
   public onLogin(): void {
     this.loginErrorMessage = '';
 
@@ -37,50 +74,41 @@ export class LoginFormComponent {
       return;
     }
     
-    // 4. USE O SERVIÇO (AGORA COM .subscribe())
-    // A lógica de "loginSuccess" mudou para aqui dentro.
     this.authService.login(this.username, this.password)
       .subscribe(success => {
-        // O subscribe vai esperar pela resposta do backend
         if (!success) {
-          // Se o authService nos devolveu 'false', mostre o erro
           this.loginErrorMessage = 'Usuário ou senha não encontrado.';
         }
-        // (Se 'success' for true, o próprio serviço já tratou da navegação)
       });
   }
 
-  // ... (a sua função onLoginEnter() fica igual) ...
+  /**
+   * Captura o evento de Enter no input de senha para submeter o formulário.
+   */
   public onLoginEnter(event: Event, button: HTMLButtonElement): void {
     event.preventDefault();
     button.click();
   }
 
-  // ... (todas as suas outras funções de pop-up e toggle ficam aqui) ...
-  // ... (togglePasswordVisibility, openForgotPassword, etc.) ...
   public togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
-  public showForgotPassword: boolean = false;
-  public forgotPasswordStep: number = 1;
-  public forgotUsername: string = '';
-  public foundPassword: string = '';
-  public foundUsernameDisplay: string = '';
-  public showPasswordMessage: string = '';
-  public showSignUp: boolean = false;
-  public signUpStep: number = 1;
-  public signUpUsername: string = '';
-  public signUpPassword: string = '';
-  public signUpMessage: string = '';
-  public showSignUpPassword: boolean = false;
-  public newPassword: string = '';
-  public showNewPassword: boolean = false;
+
+  public focusPassword(event: Event): void {
+    event.preventDefault();
+    if (this.passwordField) {
+      this.passwordField.nativeElement.focus();
+    }
+  }
+
+  // --- SEÇÃO 8: LÓGICA DE RECUPERAÇÃO DE SENHA ---
 
   openForgotPassword(event: Event): void {
     event.preventDefault(); 
     this.showForgotPassword = true;
     this.forgotPasswordStep = 1; 
   }
+
   closeForgotPassword(): void {
     this.showForgotPassword = false;
     this.forgotUsername = '';
@@ -90,35 +118,25 @@ export class LoginFormComponent {
     this.newPassword = '';
     this.showNewPassword = false;
   }
+
   /**
    * Chamado pelo botão "REDEFINIR SENHA" (Passo 1).
-   * Faz o POST para a API.
+   * Realiza validação e chama o serviço de reset.
    */
   onResetPassword(): void {
-    
-    // 1. Validação do frontend
     if (!this.forgotUsername || !this.newPassword) {
       this.showPasswordMessage = 'Por favor, preencha o usuário e a nova senha.';
       return;
     }
-    // (Pode adicionar mais validações, como 'newPassword.length < 6')
 
-    // 2. Limpa a mensagem de erro
     this.showPasswordMessage = '';
 
-    // 3. USE O SERVIÇO (com .subscribe())
     this.authService.resetPassword(this.forgotUsername, this.newPassword)
       .subscribe({
-        // 4. Callback de SUCESSO
         next: (response) => {
-          // O backend deu sucesso, avance para o Passo 2
           this.forgotPasswordStep = 2; 
         },
-        
-        // 5. Callback de ERRO
         error: (err) => {
-          // Mostra a mensagem de erro vinda do backend
-          // (Ex: "Usuário não encontrado.")
           if (err.error && err.error.error) {
             this.showPasswordMessage = err.error.error;
           } else {
@@ -127,24 +145,28 @@ export class LoginFormComponent {
         }
       });
   }
+
   onConclude(): void {
     this.closeForgotPassword();
   }
-  public focusPassword(event: Event): void {
-    event.preventDefault();
-    if (this.passwordField) {
-      this.passwordField.nativeElement.focus();
-    }
-  }
+
   public onFindPasswordEnter(event: Event, button: HTMLButtonElement): void {
     event.preventDefault();
     button.click();
   }
+
+  public toggleNewPasswordVisibility(): void {
+    this.showNewPassword = !this.showNewPassword;
+  }
+
+  // --- SEÇÃO 9: LÓGICA DE CADASTRO (SIGN UP) ---
+
   openSignUp(event: Event): void {
     event.preventDefault(); 
     this.showSignUp = true;
     this.signUpStep = 1; 
   }
+
   closeSignUp(): void {
     this.showSignUp = false;
     this.signUpUsername = '';
@@ -152,9 +174,12 @@ export class LoginFormComponent {
     this.signUpMessage = '';
     this.showSignUpPassword = false;    
   }
-  // --- ATUALIZAÇÃO DA FUNÇÃO onSignUp ---
+
+  /**
+   * Executa o cadastro de um novo usuário.
+   * Valida tamanho da senha e chama o serviço de registro.
+   */
   onSignUp(): void {
-    // 1. Validação do frontend (como você já tinha)
     if (!this.signUpUsername || !this.signUpPassword) {
       this.signUpMessage = 'Por favor, preencha o usuário e a senha.';
       return;
@@ -164,22 +189,14 @@ export class LoginFormComponent {
        return;
     }
 
-    // 2. Limpa a mensagem de erro antes de tentar
     this.signUpMessage = '';
 
-    // 3. USE O SERVIÇO (com .subscribe())
     this.authService.register(this.signUpUsername, this.signUpPassword)
       .subscribe({
-        // 4. Callback de SUCESSO
         next: (response) => {
-          // O backend deu sucesso, avance para o Passo 2
           this.signUpStep = 2; 
         },
-        
-        // 5. Callback de ERRO
         error: (err) => {
-          // Mostra a mensagem de erro vinda do backend
-          // (Ex: "Este nome de usuário já está em uso.")
           if (err.error && err.error.error) {
             this.signUpMessage = err.error.error;
           } else {
@@ -188,22 +205,21 @@ export class LoginFormComponent {
         }
       });
   }
+
   onSignUpConclude(): void {
     this.closeSignUp();
   }
+
   public focusSignUpPassword(event: Event): void {
     event.preventDefault();
     if (this.signUpPasswordField) {
       this.signUpPasswordField.nativeElement.focus();
     }
   }
+
   public onSignUpEnter(event: Event, button: HTMLButtonElement): void {
     event.preventDefault();
     button.click();
-  }
-
-  public toggleNewPasswordVisibility(): void {
-    this.showNewPassword = !this.showNewPassword;
   }
 
   public toggleSignUpPasswordVisibility(): void {
