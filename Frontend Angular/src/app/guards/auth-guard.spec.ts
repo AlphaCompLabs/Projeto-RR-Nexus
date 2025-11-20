@@ -5,14 +5,15 @@
  * Autor(es): Elisa / FrontEnd
  * Data: 02/11/2025
  * Descrição: Testes unitários para o AuthGuard.
- * Verifica se a rota é protegida corretamente esperando a validação do backend.
+ * Verifica se a rota é protegida corretamente esperando a validação do backend
+ * e se o redirecionamento ocorre em caso de falha.
  * =====================================================================================
  */
 
 // --- SEÇÃO 1: IMPORTAÇÕES ---
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { AuthGuard } from './auth-guard'; // Importando a CLASSE correta
+import { AuthGuard } from './auth-guard'; 
 import { AuthService } from '../services/auth.service';
 import { of, Observable } from 'rxjs';
 
@@ -45,7 +46,7 @@ describe('AuthGuard', () => {
     expect(guard).toBeTruthy();
   });
 
-  // --- SEÇÃO 4: TESTES DE PERMISSÃO ---
+  // --- SEÇÃO 4: TESTES DE PERMISSÃO (HAPPY PATH) ---
 
   /**
    * Cenário: Token válido e Backend responde OK.
@@ -62,7 +63,7 @@ describe('AuthGuard', () => {
     });
   });
 
-  // --- SEÇÃO 5: TESTES DE BLOQUEIO ---
+  // --- SEÇÃO 5: TESTES DE BLOQUEIO (SAD PATH) ---
 
   /**
    * Cenário: Sem token ou Backend responde Erro/Expirado.

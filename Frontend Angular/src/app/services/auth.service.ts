@@ -1,24 +1,37 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.9.5
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Serviço central de Autenticação e Sessão.
+ * Gerencia tokens, comunicação com API de Auth e descoberta do servidor HTTP (Hostname).
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, catchError, map, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
-// [MUDANÇA 1] Importe 'HttpResponse' (ainda precisamos dele para o hostname)
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 
+// --- SEÇÃO 2: DEFINIÇÃO DO SERVIÇO ---
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  // O IP/domínio do seu Backend
+  // --- SEÇÃO 3: CONSTANTES E CONFIGURAÇÕES ---
   private readonly API_URL = 'http://172.19.50.25/api/auth'; 
-  // O domínio do seu Frontend (que passa pelo DNS e Nginx)
   private readonly HOST_URL = 'http://www.meutrabalho.com.br'; 
-  
   private readonly SESSION_KEY = 'rr-nexus-session-id';
 
-  // --- NOSSOS "ESTADOS" GLOBAIS ---
+  // --- SEÇÃO 4: ESTADOS GLOBAIS (Subjects) ---
   
+  /** Controla se a aplicação está carregando a sessão inicial (Splash Screen) */
+  public appLoading$ = new BehaviorSubject<boolean>(true);
+
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$: Observable<boolean>;
   
@@ -28,10 +41,9 @@ export class AuthService {
   
   public currentUser = new BehaviorSubject<any | null>(null);
   public currentSession = new BehaviorSubject<any | null>(null);
-  
-  // O 'Estado' para o hostname (continua igual)
   private currentHostname = new BehaviorSubject<string>('Carregando...');
 
+  // --- SEÇÃO 5: INICIALIZAÇÃO ---
   constructor(
     private router: Router,
     private http: HttpClient
@@ -39,38 +51,41 @@ export class AuthService {
     this.isLoggedIn$ = this.isLoggedInSubject.asObservable();
   }
 
-  // --- LÓGICA DE VALIDAÇÃO ---
+  // --- SEÇÃO 6: VALIDAÇÃO DE SESSÃO (ON LOAD) ---
 
+  /**
+   * Chamado pelo AppComponent ao iniciar.
+   * Verifica se existe token e valida. Libera o 'appLoading$' ao final.
+   */
   public validateSessionOnLoad(): void {
     const token = this.getToken();
+    
     if (!token) {
+      this.appLoading$.next(false); 
       return; 
     }
-    console.log('AuthService: Token encontrado no localStorage. Validando...');
-    this.validateToken(token).subscribe();
+
+    console.log('AuthService: Token encontrado. Verificando...');
+    
+    this.validateToken(token)
+      .pipe(
+        finalize(() => {
+          // Garante que o loading pare, independente de sucesso ou erro
+          this.appLoading$.next(false);
+        })
+      )
+      .subscribe();
   }
 
   /**
-   * Função central que faz o GET /session/validate
-   * [REVERTIDA] para ser simples e APENAS pegar o JSON.
+   * Valida o token no backend e preenche os estados de usuário/sessão.
    */
   private validateToken(token: string): Observable<any> {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    // [MUDANÇA 2] REMOVA "{ observe: 'response' }"
-    // Esta chamada é para o Backend, que não tem o header do hostname.
     return this.http.get<any>(`${this.API_URL}/session/validate`, { headers: headers })
       .pipe(
-        // [MUDANÇA 3] A resposta é 'any' (o JSON), não 'HttpResponse'
         tap((responseBody: any) => {
-          // SUCESSO!
-          
-          // [MUDANÇA 4] REMOVA A LÓGICA DE LER HEADER DAQUI
-          // (O hostname será buscado pela função 'getServerHostname' separadamente)
-
-          // O resto da lógica usa 'responseBody'
           this.currentUser.next({ 
             username: responseBody.username, 
             userId: responseBody.userId 
@@ -82,16 +97,129 @@ export class AuthService {
           this.isLoggedInSubject.next(true);
         }),
         catchError(error => {
-          // A lógica de erro não muda
-          console.warn('AuthService: Validação falhou. Limpando sessão.', error.error.error);
+          console.warn('AuthService: Validação falhou.', error);
           this.clearSession(); 
-          this.router.navigate(['/']);
+          // Não redirecionamos aqui para evitar conflito com o Guard
           return of(null);
         })
       );
   }
 
-  // --- FUNÇÕES DE AJUDA (Helpers) ---
+  // --- SEÇÃO 7: GUARDA DE ROTAS (CHECK AUTH) ---
+
+  /**
+   * Método usado pelo AuthGuard para esperar a resposta do backend.
+   * Retorna true/false e resolve o problema de F5 na rota protegida.
+   */
+  public checkAuth(): Observable<boolean> {
+     const token = this.getToken();
+     
+     if (!token) return of(false);
+
+     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+     
+     return this.http.get<any>(`${this.API_URL}/session/validate`, { headers: headers }).pipe(
+        tap((res: any) => {
+            // Atualiza estados se o Guard rodar antes do validateSessionOnLoad
+            this.currentUser.next({ username: res.username, userId: res.userId });
+            this.isLoggedInSubject.next(true);
+        }),
+        map(() => true),
+        catchError(() => {
+            this.clearSession();
+            return of(false);
+        })
+     );
+  }
+
+  // --- SEÇÃO 8: AUTENTICAÇÃO (LOGIN/LOGOUT) ---
+
+  public login(username: string, password: string): Observable<boolean> {
+    const body = { username: username, password: password };
+    return this.http.post<any>(`${this.API_URL}/login`, body)
+      .pipe(
+        tap(response => {
+          this.saveSession(response.sessionId);
+          // Após login, validamos para pegar os dados completos
+          this.validateToken(response.sessionId).subscribe(() => {
+            this.router.navigate(['/meu-perfil']);
+          });
+        }),
+        map(() => true), 
+        catchError(error => {
+          console.error('AuthService: Falha no login.', error.error);
+          return of(false); 
+        })
+      );
+  }
+
+  public logout(): Observable<any> {
+    const sessionId = this.getToken();
+    
+    if (sessionId) {
+      const headers = new HttpHeaders({ 'Authorization': `Bearer ${sessionId}` });
+
+      return this.http.post<any>(`${this.API_URL}/logout`, {}, { headers: headers })
+        .pipe(
+          tap(() => console.log('AuthService: Sessão invalidada no backend.')),
+          catchError(() => of(null)),
+          finalize(() => {
+            this.clearSession();
+            this.router.navigate(['/']); 
+          })
+        );
+    } else {
+      this.clearSession();
+      this.router.navigate(['/']); 
+      return of(null);
+    }
+  }
+
+  // --- SEÇÃO 9: GERENCIAMENTO DE USUÁRIO ---
+
+  public register(username: string, password: string): Observable<any> {
+    const body = { username: username, password: password };
+    return this.http.post<any>(`${this.API_URL}/register`, body)
+      .pipe(
+        tap(() => console.log('AuthService: Registo bem-sucedido!')),
+        catchError(error => { throw error; })
+      );
+  }
+
+  public resetPassword(username: string, newPassword: string): Observable<any> {
+    const body = { username: username, newPassword: newPassword };
+    return this.http.post<any>(`${this.API_URL}/reset-password`, body)
+      .pipe(
+        tap(res => console.log('AuthService: Senha redefinida!', res.message)),
+        catchError(error => { throw error; })
+      );
+  }
+
+  // --- SEÇÃO 10: DESCOBERTA DE SERVIDOR (HOSTNAME) ---
+
+  /**
+   * Busca o hostname do servidor HTTP atual.
+   * Faz uma requisição ao Frontend (Nginx) para ler o header X-Server-Name.
+   */
+  public getServerHostname(): Observable<string> {
+    return this.http.get<any>(`${this.HOST_URL}/lb-ping`, { observe: 'response' })
+      .pipe(
+        map((response: HttpResponse<any>) => {
+          const nginxHostname = response.headers.get('X-Server-Name');
+          if (nginxHostname) {
+            this.currentHostname.next(nginxHostname);
+            return nginxHostname;
+          }
+          return 'Nome não encontrado';
+        }),
+        catchError(error => {
+          console.error('AuthService: Erro ao buscar hostname.', error);
+          return of('Servidor Desconhecido');
+        })
+      );
+  }
+
+  // --- SEÇÃO 11: HELPERS (STORAGE) ---
 
   public getToken(): string | null {
     return localStorage.getItem(this.SESSION_KEY);
@@ -106,147 +234,7 @@ export class AuthService {
     this.isLoggedInSubject.next(false);
     this.currentUser.next(null); 
     this.currentSession.next(null); 
-    this.currentHostname.next('Carregando...'); // Limpa o hostname
-    console.log('AuthService: Sessão limpa do localStorage e dos estados.');
-  }
-
-  // --- FUNÇÕES PRINCIPAIS (Login não muda) ---
-
-  public login(username: string, password: string): Observable<boolean> {
-    // (Esta função já está correta, não precisa mudar)
-    const body = { username: username, password: password };
-    return this.http.post<any>(`${this.API_URL}/login`, body)
-      .pipe(
-        tap(response => {
-          this.saveSession(response.sessionId);
-          this.validateToken(response.sessionId).subscribe(() => {
-            this.router.navigate(['/meu-perfil']);
-          });
-        }),
-        map(() => true), 
-        catchError(error => {
-          console.error('AuthService: Falha no login real.', error.error);
-          return of(false); 
-        })
-      );
-  }
-
-  // ... (logout, register, resetPassword não mudam) ...
-  public logout(): Observable<any> {
-    const sessionId = this.getToken();
-    
-    if (sessionId) {
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${sessionId}`
-      });
-
-      return this.http.post<any>(`${this.API_URL}/logout`, {}, { headers: headers })
-        .pipe(
-          tap(response => {
-            console.log('AuthService: Sessão invalidada no backend.');
-          }),
-          catchError(error => {
-            console.warn('AuthService: Erro ao invalidar sessão no backend.');
-            return of(null);
-          }),
-          finalize(() => {
-            this.clearSession();
-            this.router.navigate(['/']); 
-          })
-        );
-    } else {
-      this.clearSession();
-      this.router.navigate(['/']); 
-      return of(null);
-    }
-  }
-
-  public register(username: string, password: string): Observable<any> {
-    const body = { username: username, password: password };
-    return this.http.post<any>(`${this.API_URL}/register`, body)
-      .pipe(
-        tap(response => {
-          console.log('AuthService: Registo bem-sucedido!');
-        }),
-        catchError(error => {
-          console.error('AuthService: Falha no registo.', error.error);
-          throw error; 
-        })
-      );
-  }
-
-  public resetPassword(username: string, newPassword: string): Observable<any> {
-    const body = { username: username, newPassword: newPassword };
-
-    return this.http.post<any>(`${this.API_URL}/reset-password`, body)
-      .pipe(
-        tap(response => {
-          console.log('AuthService: Senha redefinida com sucesso!', response.message);
-        }),
-        catchError(error => {
-          console.error('AuthService: Falha no reset da senha.', error.error);
-          throw error; 
-        })
-      );
-  }
-
-
-  /**
-   * Pega o hostname do Servidor HTTP (A, B, ou C)
-   * [CORRIGIDO] Faz uma chamada HTTP real para o Frontend Nginx.
-   */
-  public getServerHostname(): Observable<string> {
-    
-    // [MUDANÇA 5] Esta é agora uma chamada HTTP real para a rota 'lb-ping' 
-    // do Nginx do Frontend (que passa pelo DNS).
-    return this.http.get<any>(`${this.HOST_URL}/lb-ping`, { observe: 'response' })
-      .pipe(
-        map((response: HttpResponse<any>) => {
-          // Lê o header 'X-Server-Name' que o Nginx do Frontend injetou
-          const nginxHostname = response.headers.get('X-Server-Name');
-          if (nginxHostname) {
-            this.currentHostname.next(nginxHostname); // Salva no 'Estado'
-            return nginxHostname;
-          }
-          return 'Nome não encontrado';
-        }),
-        catchError(error => {
-          console.error('AuthService: Falha ao buscar hostname do HTTP server.', error);
-          this.currentHostname.next('Erro de conexão');
-          return of('Servidor Desconhecido'); // Fallback
-        })
-      );
-  }
-
-  // --- NOVO MÉTODO PARA O GUARD ---
-  public checkAuth(): Observable<boolean> {
-    const token = this.getToken();
-
-    // 1. Se não tem token salvo, nem tenta ir no backend.
-    if (!token) {
-      return of(false);
-    }
-
-    // 2. Se tem token, valida no backend e retorna um Observable<boolean>
-    // Note que não usamos validateToken() aqui para não duplicar lógicas de redirect
-    // Queremos apenas saber: É válido ou não?
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-    
-    return this.http.get<any>(`${this.API_URL}/session/validate`, { headers: headers }).pipe(
-      tap((responseBody: any) => {
-        // Se deu certo, atualiza os estados globais para a aplicação ficar ciente
-        this.currentUser.next({ 
-            username: responseBody.username, 
-            userId: responseBody.userId 
-        });
-        this.isLoggedInSubject.next(true);
-      }),
-      map(() => true), // Transforma a resposta de sucesso em TRUE para o Guard
-      catchError(() => {
-        // Se deu erro (401, 500), limpa tudo e retorna FALSE
-        this.clearSession();
-        return of(false);
-      })
-    );
+    this.currentHostname.next('Carregando...'); 
+    console.log('AuthService: Sessão limpa.');
   }
 }

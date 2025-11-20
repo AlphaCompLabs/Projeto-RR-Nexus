@@ -1,9 +1,16 @@
-@if (showHeaderFooter) {
-  <app-header></app-header>
-}
+@if (isLoading) {
+  <div class="fixed inset-0 bg-nexus-darkest z-50 flex items-center justify-center">
+    <img src="assets/images/logo.svg" alt="Carregando..." class="w-32 opacity-50 animate-pulse">
+  </div>
+} 
+@else {
+  @if (showHeaderFooter) {
+    <app-header></app-header>
+  }
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 
-@if (showHeaderFooter) {
-  <app-footer></app-footer>
+  @if (showHeaderFooter) {
+    <app-footer></app-footer>
+  }
 }

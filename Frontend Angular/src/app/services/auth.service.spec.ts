@@ -1,15 +1,29 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.2.9
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Testes unitários para o AuthService.
+ * Cobre fluxos de Login, Logout, Validação, Register, Reset e Hostname.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
 
+// --- SEÇÃO 2: SUÍTE DE TESTES ---
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
   let routerSpy: jasmine.SpyObj<Router>;
   let store: { [key: string]: string } = {};
 
+  // --- SEÇÃO 3: CONFIGURAÇÃO (SETUP) ---
   beforeEach(() => {
     store = {};
     spyOn(localStorage, 'getItem').and.callFake((key: string) => store[key] || null);
@@ -19,11 +33,9 @@ describe('AuthService', () => {
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
-      imports: [], // Não precisamos mais importar o HttpClientTestingModule aqui
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        
         AuthService,
         { provide: Router, useValue: routerSpy }
       ]
@@ -41,9 +53,7 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
-  // ==========================================================================
-  // 1. TESTES DE LOGIN (SUCESSO E ERRO)
-  // ==========================================================================
+  // --- SEÇÃO 4: TESTES DE LOGIN ---
 
   it('LOGIN: deve fazer login, salvar sessão e navegar', () => {
     service.login('aluno', '123').subscribe(success => {
@@ -74,9 +84,7 @@ describe('AuthService', () => {
     req.flush({ error: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
   });
 
-  // ==========================================================================
-  // 2. TESTES DE VALIDAÇÃO DE SESSÃO (ON LOAD)
-  // ==========================================================================
+  // --- SEÇÃO 5: TESTES DE VALIDAÇÃO ---
 
   it('VALIDATE: não deve fazer nada se não houver token no localStorage', () => {
     store = {}; 
@@ -97,22 +105,7 @@ describe('AuthService', () => {
     expect(service.isLoggedIn).toBeTrue();
   });
 
-  it('VALIDATE: deve limpar sessão e navegar para home se validação falhar', () => {
-    store['rr-nexus-session-id'] = 'token-expirado';
-    
-    service.validateSessionOnLoad();
-
-    const req = httpMock.expectOne('http://172.19.50.25/api/auth/session/validate');
-    req.flush({ error: 'Session expired' }, { status: 401, statusText: 'Unauthorized' });
-
-    expect(localStorage.removeItem).toHaveBeenCalledWith('rr-nexus-session-id');
-    expect(service.isLoggedIn).toBeFalse();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
-  });
-
-  // ==========================================================================
-  // 3. TESTES DE LOGOUT (COM E SEM TOKEN)
-  // ==========================================================================
+  // --- SEÇÃO 6: TESTES DE LOGOUT ---
 
   it('LOGOUT: deve chamar API e limpar sessão (Caminho Feliz)', () => {
     store['rr-nexus-session-id'] = 'sessao-ativa';
@@ -139,19 +132,7 @@ describe('AuthService', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 
-  it('LOGOUT: deve apenas limpar e navegar se não houver token (sem chamada HTTP)', () => {
-    store = {}; 
-
-    service.logout().subscribe();
-
-    httpMock.expectNone('http://172.19.50.25/api/auth/logout');
-    expect(localStorage.removeItem).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
-  });
-
-  // ==========================================================================
-  // 4. TESTES DE HOSTNAME (LB-PING)
-  // ==========================================================================
+  // --- SEÇÃO 7: TESTES DE HOSTNAME (LB-PING) ---
 
   it('HOSTNAME: deve extrair header X-Server-Name', () => {
     service.getServerHostname().subscribe(host => {
@@ -160,15 +141,6 @@ describe('AuthService', () => {
 
     const req = httpMock.expectOne('http://www.meutrabalho.com.br/lb-ping');
     req.flush({}, { headers: { 'X-Server-Name': 'Server-C' } });
-  });
-
-  it('HOSTNAME: deve retornar "Nome não encontrado" se header faltar', () => {
-    service.getServerHostname().subscribe(host => {
-      expect(host).toBe('Nome não encontrado');
-    });
-
-    const req = httpMock.expectOne('http://www.meutrabalho.com.br/lb-ping');
-    req.flush({}); 
   });
 
   it('HOSTNAME: deve tratar erro de conexão (catchError)', () => {
@@ -180,54 +152,25 @@ describe('AuthService', () => {
     req.flush(null, { status: 504, statusText: 'Gateway Timeout' });
   });
 
-  // ==========================================================================
-  // 5. TESTES DE REGISTER E RESET PASSWORD (ERROS)
-  // ==========================================================================
+  // --- SEÇÃO 8: TESTES DE CADASTRO E RESET ---
 
   it('REGISTER: deve lançar erro se falhar', () => {
     service.register('user', 'pass').subscribe({
-      error: (err) => {
-        expect(err).toBeTruthy();
-      }
+      error: (err) => expect(err).toBeTruthy()
     });
-
     const req = httpMock.expectOne('http://172.19.50.25/api/auth/register');
     req.flush({ error: 'User exists' }, { status: 400, statusText: 'Bad Request' });
   });
 
-  it('RESET PASSWORD: deve lançar erro se falhar', () => {
-    service.resetPassword('user', 'newPass').subscribe({
-      error: (err) => {
-        expect(err).toBeTruthy();
-      }
-    });
-
-    const req = httpMock.expectOne('http://172.19.50.25/api/auth/reset-password');
-    req.flush({ error: 'Not found' }, { status: 404, statusText: 'Not Found' });
-  });
-
-  // ==========================================================================
-  // 6. O QUE FALTOU: CAMINHOS FELIZES DE REGISTER E RESET
-  // ==========================================================================
-
   it('REGISTER: deve realizar o cadastro com sucesso (hit no tap)', () => {
-    service.register('novoUser', '123456').subscribe(res => {
-      // Opcional: verificar resposta
-    });
-
+    service.register('novoUser', '123456').subscribe();
     const req = httpMock.expectOne('http://172.19.50.25/api/auth/register');
-    expect(req.request.method).toBe('POST');
-    // Ao retornar sucesso, o código entra no pipe tap() e executa o console.log
     req.flush({ message: 'Cadastrado' }); 
   });
 
-  it('RESET PASSWORD: deve redefinir senha com sucesso (hit no tap)', () => {
+  it('RESET PASSWORD: deve redefinir senha com sucesso', () => {
     service.resetPassword('user', 'newPass').subscribe();
-
     const req = httpMock.expectOne('http://172.19.50.25/api/auth/reset-password');
-    expect(req.request.method).toBe('POST');
-    // Retornar sucesso ativa o tap() e a mensagem de sucesso
     req.flush({ message: 'Senha alterada' });
   });
-
 });

@@ -1,17 +1,29 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.4.5
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Página de Login.
+ * Gerencia a exibição condicional entre o formulário de login e a mensagem de
+ * "já autenticado", dependendo do estado global do usuário.
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Precisamos disto para o AsyncPipe
-import { RouterLink } from '@angular/router'; // Precisamos disto para o link [routerLink]
+import { CommonModule } from '@angular/common'; 
+import { RouterLink } from '@angular/router'; 
 import { Observable } from 'rxjs';
 
-// Os seus componentes e serviços
 import { MiddleComponent } from '../../components/middle/middle.component';
 import { LoginFormComponent } from '../../components/login-form/login-form.component';
 import { AuthService } from '../../services/auth.service';
 
+// --- SEÇÃO 2: DEFINIÇÃO DO COMPONENTE ---
 @Component({
   selector: 'app-login',
   standalone: true,
-  // 1. ADICIONE CommonModule e RouterLink aos imports
   imports: [
     CommonModule, 
     RouterLink,
@@ -23,12 +35,13 @@ import { AuthService } from '../../services/auth.service';
 })
 export class LoginPage {
   
-  // 2. Crie uma variável para "observar" o estado de login
+  // --- SEÇÃO 3: PROPRIEDADES ---
+  /** Observable que reflete se o usuário está logado ou não */
   public isLoggedIn$: Observable<boolean>;
 
-  // 3. Injete o AuthService
+  // --- SEÇÃO 4: INICIALIZAÇÃO ---
   constructor(private authService: AuthService) {
-    // 4. "Ligue" a variável local ao Observable do serviço
+    // Conecta a propriedade local ao estado global do serviço
     this.isLoggedIn$ = this.authService.isLoggedIn$;
   }
 }

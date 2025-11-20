@@ -1,18 +1,32 @@
+/*
+ * =====================================================================================
+ * Projeto RR-Nexus
+ * Versão: 3.1.5
+ * Autor(es): Elisa / FrontEnd
+ * Data: 02/11/2025
+ * Descrição: Testes unitários para o MiddleComponent.
+ * Foca na lógica do IntersectionObserver (cálculo de opacidade).
+ * =====================================================================================
+ */
+
+// --- SEÇÃO 1: IMPORTAÇÕES ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MiddleComponent } from './middle.component';
-import { By } from '@angular/platform-browser';
 
+// --- SEÇÃO 2: SUÍTE DE TESTES ---
 describe('MiddleComponent', () => {
   let component: MiddleComponent;
   let fixture: ComponentFixture<MiddleComponent>;
 
-  // Variáveis para capturar o funcionamento interno do Observer
+  // Variáveis para capturar o funcionamento interno do Mock do Observer
   let observerCallback: any;
   let mockObserverInstance: any;
 
+  // --- SEÇÃO 3: CONFIGURAÇÃO (SETUP) ---
   beforeEach(async () => {
+    
     // 1. Mock Avançado do IntersectionObserver
-    // Ele captura a função de callback para podermos chamá-la manualmente nos testes
+    // Captura a função de callback para podermos disparar eventos manualmente
     const IntersectionObserverMock = class {
       constructor(callback: any) {
         observerCallback = callback;
@@ -22,7 +36,7 @@ describe('MiddleComponent', () => {
       disconnect = jasmine.createSpy('disconnect');
     };
 
-    // Substitui o original do navegador pelo nosso Mock
+    // Substitui o observer original do navegador pelo nosso Mock
     (window as any).IntersectionObserver = IntersectionObserverMock;
 
     await TestBed.configureTestingModule({
@@ -33,7 +47,7 @@ describe('MiddleComponent', () => {
     fixture = TestBed.createComponent(MiddleComponent);
     component = fixture.componentInstance;
     
-    // O detectChanges dispara o ngOnInit -> que cria o Observer -> que preenche observerCallback
+    // Dispara ngOnInit -> cria Observer -> preenche observerCallback
     fixture.detectChanges();
   });
 
@@ -42,46 +56,39 @@ describe('MiddleComponent', () => {
   });
 
   it('deve começar observando o elemento', () => {
-    // Verifica se o método .observe() foi chamado no elemento nativo
     expect(mockObserverInstance.observe).toHaveBeenCalledWith(component['element']);
   });
 
-  // --- TESTES DA LÓGICA DO CALLBACK (O que faltava!) ---
+  // --- SEÇÃO 4: TESTES DA LÓGICA DE VISIBILIDADE ---
 
-  it('deve calcular opacidade correta quando elemento está 0% visível (intersectionRatio = 0)', () => {
-    // Simulamos o evento do navegador
+  it('deve calcular opacidade 1 (escuro) quando elemento está 0% visível', () => {
     const mockEntry = { intersectionRatio: 0 }; 
-    
-    // Disparamos o callback manualmente
-    observerCallback([mockEntry]);
+    observerCallback([mockEntry]); // Dispara evento
 
-    // Lógica: opacity = 1 - 0 = 1
+    // opacity = 1 - 0 = 1
     expect(component.overlayOpacity).toBe(1);
   });
 
-  it('deve calcular opacidade correta quando elemento está 50% visível (intersectionRatio = 0.5)', () => {
+  it('deve calcular opacidade 0.5 quando elemento está 50% visível', () => {
     const mockEntry = { intersectionRatio: 0.5 };
     observerCallback([mockEntry]);
 
-    // Lógica: opacity = 1 - 0.5 = 0.5
+    // opacity = 1 - 0.5 = 0.5
     expect(component.overlayOpacity).toBe(0.5);
   });
 
-  it('deve ficar totalmente transparente quando 100% visível (intersectionRatio = 1)', () => {
+  it('deve ficar totalmente transparente (0) quando 100% visível', () => {
     const mockEntry = { intersectionRatio: 1.0 };
     observerCallback([mockEntry]);
 
-    // Lógica: opacity = 1 - 1 = 0
+    // opacity = 1 - 1 = 0
     expect(component.overlayOpacity).toBe(0);
   });
 
-  // --- TESTE DO NGONDESTROY ---
+  // --- SEÇÃO 5: TESTES DE LIMPEZA ---
 
   it('deve desconectar o observer ao destruir o componente', () => {
-    // Dispara a destruição do componente
     fixture.destroy(); 
-    
-    // Verifica se o método .disconnect() foi chamado para evitar memory leak
     expect(mockObserverInstance.disconnect).toHaveBeenCalled();
   });
 });
