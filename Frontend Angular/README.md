@@ -1,59 +1,102 @@
-# ProjetoRrNexus
+# Projeto-RR-Nexus
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.2.
+Projeto de arquitetura de aplicação distribuída (3 camadas) que utiliza Round Robin DNS para balanceamento de carga. O desafio central é a implementação de uma sessão centralizada para garantir a persistência do login do usuário entre múltiplos servidores, superando a natureza 'stateless' do balanceamento DNS.
 
-## Development server
+# 🚀 Frontend - Projeto RR Nexus (Trabalho 02)
 
-To start a local development server, run:
+Este é o cliente web (SPA) do projeto RR Nexus, desenvolvido em Angular. Ele representa a camada de apresentação distribuída em 3 servidores HTTP, acessados via DNS Round Robin.
+
+O Frontend é responsável pela interação com o usuário, validação visual de segurança e comunicação com a API centralizada para manter a sessão ativa, mesmo que o usuário troque de servidor físico durante a navegação.
+
+## ✨ Funcionalidades (Features)
+
+- **Autenticação Completa:** Telas de Login, Cadastro e Recuperação de Senha integradas à API.
+- **Proteção de Rotas (Guards):** Implementação de AuthGuard robusto que previne acessos não autorizados e resolve condições de corrida (Race Conditions) ao recarregar a página (F5).
+- **Interatividade Visual:** Componentes dinâmicos (MiddleComponent) que demonstram as camadas da arquitetura (Rede, DB, Back, Front) com efeitos de rolagem.
+- **Gestão de Sessão no Cliente:** Armazenamento seguro de tokens e validação automática de sessão ao iniciar a aplicação (APP_INITIALIZER logic).
+- **Feedback de Servidor:** Identificação visual de qual servidor HTTP (Hostname) está respondendo à requisição via headers do Nginx.
+- **Design Responsivo:** Estilização moderna e adaptativa utilizando Tailwind CSS.
+
+## 💻 Tech Stack
+
+- **Framework:** Angular 18+ (Standalone Components)  
+- **Linguagem:** TypeScript  
+- **Estilização:** Tailwind CSS  
+- **Gerenciamento de Estado:** RxJS (BehaviorSubjects)  
+- **Testes:** Jasmine & Karma  
+- **Integração:** HTTP Client  
+
+## 🔧 Instalação e Configuração
+
+### 1. Clonar o Repositório
+
+```bash
+git clone https://github.com/AlphaCompLabs/Projeto-RR-Nexus.git
+```
+
+### 2. Acessar a Branch de Desenvolvimento
+
+```bash
+git checkout dev
+```
+
+### 3. Navegar para a Pasta do Frontend
+
+```bash
+cd "Projeto-RR-Nexus/Frontend Angular"
+```
+
+### 4. Instalar Dependências
+
+```bash
+npm install
+```
+
+## 🏃 Como Rodar (Ambiente das VMs)
+
+Para este projeto, optamos por rodar a aplicação em modo de desenvolvimento (`ng serve`) nas máquinas virtuais para facilitar depuração e Live Reload.
+
+Para iniciar o servidor acessível externamente:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+No contexto do projeto (DNS Round Robin), o acesso final será feito via domínio (ex: `www.meutrabalho.com.br`) que balanceará entre as instâncias rodando este frontend.
 
-## Code scaffolding
+## 🧪 Testes Unitários (Relatórios)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Este projeto possui cobertura robusta de testes (100% Coverage), garantindo a integridade de Services, Guards e Componentes.
 
-```bash
-ng generate component component-name
-```
+### Executando os Testes
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Criamos um script personalizado:
 
 ```bash
-ng generate --help
+npm run test:relatorio
 ```
 
-## Building
+### Onde ver o resultado?
 
-To build the project run:
+Após a execução, verifique a pasta `coverage/`:
 
-```bash
-ng build
+- **projeto-rr-nexus/index.html** — Site interativo para visualizar cobertura linha por linha  
+
+Além disso, o arquivo segue disponível na raiz do frontend: **TESTE_UNITARIO.md** — Resumo em Markdown  
+
+### Estratégia de Testes
+
+- **Services:** Mock do HttpClient simulando sucesso/401/500  
+- **Components:** Testes de DOM, botões, inputs, interações  
+- **Guards:** Simulação de Observables garantindo espera da API  
+
+## 📂 Estrutura do Projeto
+
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
+src/app/
+├── components/      # Componentes visuais reutilizáveis (Header, Footer, Sidebar...)
+├── guards/          # Lógica de proteção de rotas (AuthGuard)
+├── pages/           # Componentes de página completa (Login, Profile)
+├── services/        # Lógica de negócios e comunicação HTTP (AuthService)
+└── app.ts           # Componente Raiz (Gerencia o Splash Screen)
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
