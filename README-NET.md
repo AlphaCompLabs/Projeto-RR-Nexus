@@ -122,7 +122,7 @@ options {
 
     // Configurações padrões...
 
-    // FORÇA A ORDEM CÍCLICA NA RESPOSTA (O "Pulo do Gato")
+    // FORÇA A ORDEM CÍCLICA NA RESPOSTA
     rrset-order { order cyclic; };
 
     listen-on-v6 { any; };
@@ -226,6 +226,7 @@ watch nslookup www.meutrabalho.com.br
 
 Ao desligar o servidor HTTP-01 (172.19.50.21), o IP some da lista em ~5 segundos.  
 Ao religar, retorna automaticamente.
+
 
 
 
