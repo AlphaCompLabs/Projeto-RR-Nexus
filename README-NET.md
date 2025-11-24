@@ -1,6 +1,6 @@
 # 📘 Documentação do Projeto de Redes - Infraestrutura de Alta Disponibilidade
 
-**Autores:** Eu e Pedrin
+**Autores:** Mayron Malaquias e Pedro Borges
 
 Este documento descreve a implementação técnica de uma rede com 6 Máquinas Virtuais (VMs), focando em balanceamento de carga (**Round Robin Cíclico**) com verificação de saúde (**Health Check**) automatizada e proxy reverso.
 
@@ -203,3 +203,4 @@ watch nslookup www.meutrabalho.com.br
 
 Ao desligar o servidor HTTP-01 (172.19.50.21), o IP some da lista em ~5 segundos.  
 Ao religar, retorna automaticamente.
+
