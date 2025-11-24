@@ -60,17 +60,40 @@ enp0s8: # Internet (NAT/Bridge)
 
 ## 3. Servidores HTTP (Nginx Proxy) 🔄
 
-Arquivo: `/etc/nginx/sites-available/default`
+Arquivo: `/etc/nginx/sites-available/db.meutrabalho.com.br`
 
 ```nginx
 server {
-    listen 80;
-    server_name www.meutrabalho.com.br;
+    listen 80 default_server;
+    servername ;
 
+    # Headers de identidade (sem hardcode)
+    add_header X-Server-Name  $hostname always;
+    add_header X-Server-Addr  $server_addr always;
+    add_header X-Server-Port  $server_port always;
+
+    # Endpoint leve para checar a identidade do servidor
+    location = /lb-ping {
+        add_header Cache-Control "no-store" always;
+        return 204;
+    }
+
+    # Proxy para o dev server/framework do front em 4200
     location / {
-        proxy_pass http://localhost:4200;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_pass         http://127.0.0.1:4200/;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # repassar os headers que o bloco acima já adiciona
+        add_header X-Server-Name  $hostname always;
+        add_header X-Server-Addr  $server_addr always;
+        add_header X-Server-Port  $server_port always;
+
+        # evitar cache na camada do LB/CDN
+        add_header Cache-Control "no-store" always;
     }
 }
 ```
@@ -203,5 +226,6 @@ watch nslookup www.meutrabalho.com.br
 
 Ao desligar o servidor HTTP-01 (172.19.50.21), o IP some da lista em ~5 segundos.  
 Ao religar, retorna automaticamente.
+
 
 
