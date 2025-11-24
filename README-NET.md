@@ -12,7 +12,7 @@ A rede opera na faixa `172.19.50.0/24`. A infraestrutura foi desenhada para gara
 
 | Hostname | IP Fixo | Função | Detalhes Técnicos |
 | :--- | :--- | :--- | :--- |
-| **DNS-Server** | `172.19.50.24` | Load Balancer | **BIND9 + Script Health Check** |
+| **DNS-Server** | `172.19.50.24` | Load Balancer e DNS | **BIND9 + Script Health Check** |
 | **HTTP-01** | `172.19.50.21` | Web Server | Nginx (Proxy 80 -> 4200) |
 | **HTTP-02** | `172.19.50.22` | Web Server | Nginx (Proxy 80 -> 4200) |
 | **HTTP-03** | `172.19.50.23` | Web Server | Nginx (Proxy 80 -> 4200) |
@@ -25,7 +25,7 @@ A rede opera na faixa `172.19.50.0/24`. A infraestrutura foi desenhada para gara
 
 Todos os servidores utilizam IP estático configurado via Netplan.
 
-### Exemplo Genérico (Servidores HTTP/DNS)
+### Servidores HTTP/DNS
 Arquivo: `/etc/netplan/01-netcfg.yaml`
 
 ```yaml
@@ -203,4 +203,5 @@ watch nslookup www.meutrabalho.com.br
 
 Ao desligar o servidor HTTP-01 (172.19.50.21), o IP some da lista em ~5 segundos.  
 Ao religar, retorna automaticamente.
+
 
