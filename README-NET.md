@@ -191,6 +191,12 @@ done
 
 ---
 
+No diretório do usuário `eqp_redes` executar a linha de comando
+```bash
+./monitor-dns.sh
+```
+
+
 ## 5. Validação e Testes no Cliente 🧪
 
 ### Desativar Resolvedor Local
@@ -226,6 +232,7 @@ watch nslookup www.meutrabalho.com.br
 
 Ao desligar o servidor HTTP-01 (172.19.50.21), o IP some da lista em ~5 segundos.  
 Ao religar, retorna automaticamente.
+
 
 
 
