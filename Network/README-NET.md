@@ -20,7 +20,7 @@ A rede opera na faixa `172.19.50.0/24`. A infraestrutura foi desenhada para gara
 | **Cliente** | `172.19.50.26` | Validação | Firefox (Disable Cache / Direct DNS) |
 
 ---
-
+![Diagrama principal do fluxo de trabalho](Mapa_Rede.jpeg)
 ## 2. Configuração de Rede (Netplan) 🔌
 
 Todos os servidores utilizam IP estático configurado via Netplan.
