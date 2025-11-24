@@ -9,10 +9,12 @@
     <img src="https://img.shields.io/badge/Frontend-Angular_18-EA1EF3?style=for-the-badge&logo=angular&logoColor=white" alt="Angular">
     &nbsp;&nbsp;&nbsp;
     <img src="https://img.shields.io/badge/Styling-Tailwind_CSS-EA1EF3?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind">
+    <br><br>
     <div style="height: 10px;"></div>
     <img src="https://img.shields.io/badge/Backend-Node.js_Express-8C0590?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="NodeJS">
     &nbsp;&nbsp;&nbsp;
     <img src="https://img.shields.io/badge/Database-MongoDB-8C0590?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB">
+    <br><br>
     <div style="height: 10px;"></div>
     <img src="https://img.shields.io/badge/Server-Nginx-5B0772?style=for-the-badge&logo=nginx&logoColor=white" alt="Nginx">
     &nbsp;&nbsp;&nbsp;
