@@ -1,7 +1,14 @@
-# Projeto-RR-Nexus
-Projeto de arquitetura de aplicação distribuída (3 camadas) que utiliza Round Robin DNS para balanceamento de carga. O desafio central é a implementação de uma sessão centralizada para garantir a persistência do login do usuário entre múltiplos servidores , superando a natureza 'stateless' do balanceamento DNS.
+<div align="center">
+    <img src="../logo_readme_2.png" alt="RR Nexus - Sessões Contínuas" style="max-width: 100%;">
 
-# 🚀 Backend - Projeto RR Nexus (Trabalho 02)
+<br>
+
+<i>Projeto de arquitetura de aplicação distribuída (3 camadas) que utiliza Round Robin DNS para balanceamento de carga. O desafio central é a implementação de uma sessão centralizada para garantir a persistência do login do usuário entre múltiplos servidores , superando a natureza 'stateless' do balanceamento DNS.</i>
+</div><br>
+
+# 🚀 Backend
+
+**Autores:** Caio Silveira e Diogo Freitas
 
 Este é o servidor backend para o projeto **RR Nexus**. Sua principal responsabilidade é fornecer uma API RESTful para autenticação e gerenciamento de uma **sessão centralizada** em MongoDB, resolvendo o desafio de persistência de estado em uma arquitetura com balanceamento de carga DNS Round Robin (RR DNS).
 

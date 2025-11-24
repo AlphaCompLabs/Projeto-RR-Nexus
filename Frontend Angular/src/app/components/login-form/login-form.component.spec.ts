@@ -107,7 +107,7 @@ describe('LoginFormComponent', () => {
 
     component.onLogin();
 
-    expect(component.loginErrorMessage).toBe('Usuário ou senha não encontrado.');
+    expect(component.loginErrorMessage).toBe('Usuário ou senha incorretos.');
   });
 
   // --- SEÇÃO 6: TESTES DO POP-UP "ESQUECI MINHA SENHA" ---
@@ -308,6 +308,20 @@ describe('LoginFormComponent', () => {
     component.onSignUp();
 
     expect(component.signUpMessage).toBe('Ocorreu um erro desconhecido.');
+  });
+
+  it('deve mostrar erro de conexão/servidor se o login falhar no Observable', () => {
+    component.username = 'elisa';
+    component.password = 'invalida';
+    
+    // Simula uma falha de conexão (erro no Observable)
+    authServiceSpy.login.and.returnValue(throwError(() => new Error('Simulated Connection Error')));
+
+    component.onLogin();
+
+    // Deve cobrir o bloco 'error' do subscribe
+    expect(component.isLoading).toBeFalse();
+    expect(component.loginErrorMessage).toBe('Servidor indisponível ou erro de conexão.');
   });
 
 });

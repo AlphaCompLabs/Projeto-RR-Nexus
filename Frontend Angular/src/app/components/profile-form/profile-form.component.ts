@@ -31,7 +31,7 @@ export class ProfileFormComponent implements OnInit, OnDestroy {
   public username: string = 'Carregando...';
   public userId: string = 'Carregando...';
   public sessionId: string = 'Carregando...';
-  public serverName: string = '...';
+  public serverName: string = 'Identificando Servidor...';
   public loginTime: Date | null = null;
 
   // Referências para as subscrições do RxJS
@@ -66,7 +66,12 @@ export class ProfileFormComponent implements OnInit, OnDestroy {
 
     // 3. Escuta o Hostname (Servidor A/B/C)
     this.hostSub = this.authService.getServerHostname().subscribe(hostname => {
-      this.serverName = hostname; 
+      if (hostname) {
+        this.serverName = hostname;
+      } else {
+        // Fallback caso a resposta seja nula
+        this.serverName = 'Servidor Desconhecido';
+      }
     });
   }
 

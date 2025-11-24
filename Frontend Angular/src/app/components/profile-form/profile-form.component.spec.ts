@@ -67,7 +67,7 @@ describe('ProfileFormComponent', () => {
     
     // Como o serverHostnameSubject ainda não emitiu, deve estar no valor padrão
     expect(component.username).toBe('Carregando...');
-    expect(component.serverName).toBe('...');
+    expect(component.serverName).toBe('Identificando Servidor...');
   });
 
   // --- SEÇÃO 5: TESTES DE PREENCHIMENTO DE DADOS ---
@@ -104,5 +104,18 @@ describe('ProfileFormComponent', () => {
     fixture.detectChanges(); 
 
     expect(component.serverName).toBe('Servidor-A');
+  });
+
+  it('deve exibir Servidor Desconhecido se o hostname for nulo', () => {
+    fixture.detectChanges();
+    
+    expect(authServiceSpy.getServerHostname).toHaveBeenCalled();
+    
+    // Simula a resposta do servidor chegando como null
+    serverHostnameSubject.next(null as any); // Transmite um valor falso (null)
+    fixture.detectChanges(); 
+
+    // Verifica se a lógica 'else' foi executada
+    expect(component.serverName).toBe('Servidor Desconhecido');
   });
 });

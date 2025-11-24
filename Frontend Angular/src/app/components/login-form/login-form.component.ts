@@ -30,7 +30,8 @@ export class LoginFormComponent {
   public username: string = '';
   public password: string = '';
   public showPassword: boolean = false;
-  public loginErrorMessage: string = ''; 
+  public loginErrorMessage: string = '';
+  public isLoading: boolean = false; 
   
   /** Referência ao input de senha para focar via teclado */
   @ViewChild('passwordInput') passwordField!: ElementRef;
@@ -74,14 +75,25 @@ export class LoginFormComponent {
       return;
     }
     
+    // Inicia o estado de carregamento
+    this.isLoading = true;
+
     this.authService.login(this.username, this.password)
-      .subscribe(success => {
-        if (!success) {
-          this.loginErrorMessage = 'Usuário ou senha não encontrado.';
+      .subscribe({
+        next: (success) => {
+          this.isLoading = false; // Finaliza carregamento
+          if (!success) {
+            this.loginErrorMessage = 'Usuário ou senha incorretos.';
+          }
+        },
+        error: (err) => {
+          this.isLoading = false; // Finaliza carregamento mesmo com erro
+          console.error('Erro no login:', err);
+          this.loginErrorMessage = 'Servidor indisponível ou erro de conexão.';
         }
       });
   }
-
+  
   /**
    * Captura o evento de Enter no input de senha para submeter o formulário.
    */
@@ -180,32 +192,35 @@ export class LoginFormComponent {
    * Valida tamanho da senha e chama o serviço de registro.
    */
   onSignUp(): void {
-    if (!this.signUpUsername || !this.signUpPassword) {
-      this.signUpMessage = 'Por favor, preencha o usuário e a senha.';
+  this.signUpMessage = ''; // Mudança: Limpa antes de validar
+
+  if (!this.signUpUsername || !this.signUpPassword) {
+    this.signUpMessage = 'Por favor, preencha o usuário e a senha.';
+    return;
+  }
+  if (this.signUpPassword.length < 6) {
+      this.signUpMessage = 'A senha deve ter pelo menos 6 caracteres.';
       return;
-    }
-    if (this.signUpPassword.length < 6) {
-       this.signUpMessage = 'A senha deve ter pelo menos 6 caracteres.';
-       return;
-    }
-
-    this.signUpMessage = '';
-
-    this.authService.register(this.signUpUsername, this.signUpPassword)
-      .subscribe({
-        next: (response) => {
-          this.signUpStep = 2; 
-        },
-        error: (err) => {
-          if (err.error && err.error.error) {
-            this.signUpMessage = err.error.error;
-          } else {
-            this.signUpMessage = 'Ocorreu um erro desconhecido.';
-          }
-        }
-      });
   }
 
+  this.isLoading = true; // Ativa loading
+
+  this.authService.register(this.signUpUsername, this.signUpPassword)
+    .subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.signUpStep = 2;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        if (err.error && err.error.error) {
+          this.signUpMessage = err.error.error;
+        } else {
+          this.signUpMessage = 'Ocorreu um erro desconhecido.';
+        }
+      }
+    });
+}
   onSignUpConclude(): void {
     this.closeSignUp();
   }

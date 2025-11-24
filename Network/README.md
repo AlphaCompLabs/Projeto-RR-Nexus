@@ -1,3 +1,13 @@
+<div align="center">
+    <img src="../logo_readme_2.png" alt="RR Nexus - Sessões Contínuas" style="max-width: 100%;">
+
+<br>
+
+<i>Projeto de arquitetura de aplicação distribuída (3 camadas) que utiliza Round Robin DNS para balanceamento de carga. O desafio central é a implementação de uma sessão centralizada para garantir a persistência do login do usuário entre múltiplos servidores , superando a natureza 'stateless' do balanceamento DNS.</i>
+</div><br>
+
+
+
 # 📘 Documentação do Projeto de Redes - Infraestrutura de Alta Disponibilidade
 
 **Autores:** Mayron Malaquias e Pedro Borges
