@@ -15,8 +15,3 @@ Este documento descreve a estratégia de testes unitários e de integração par
 2.  Na raiz da pasta `/Backend`, execute o comando:
 
 > npm test
-
-<div align="center">
-    <img src="../npm test_rrnexus.png" alt="RR Nexus - Sessões Contínuas" style="max-width: 100%;">
-
-<br>
