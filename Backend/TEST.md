@@ -1,5 +1,6 @@
 ```markdown
-# 🧪 Documento de Testes (TEST.md) - Backend RR Nexus
+# 🧪 Documento de Testes (TEST.md) - Backend RR Nexus![Uploading npm test_rrnexus.png…]()
+
 
 Este documento descreve a estratégia de testes unitários e de integração para o servidor Backend.
 
@@ -15,3 +16,4 @@ Este documento descreve a estratégia de testes unitários e de integração par
 
 > npm test
 
+<img width="850" height="531" alt="npm test_rrnexus" src="https://github.com/user-attachments/assets/2377f3fb-0f17-4c13-835b-cd1c335c4952" />
