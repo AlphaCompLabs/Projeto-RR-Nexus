@@ -16,3 +16,4 @@ Este documento descreve a estratégia de testes unitários e de integração par
 
 > npm test
 
+![Teste Unitário Backend](npm test_rrnexus.png)
