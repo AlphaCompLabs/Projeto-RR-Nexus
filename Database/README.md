@@ -22,9 +22,7 @@ O banco de dados escolhido foi o **MongoDB (Atlas)**, configurado para atuar com
 * **Database Name:** `granada`
 * **Role:** Armazenamento de Usuários e Gestão de Sessões Centralizada.
 
-> **⚠️ Importante sobre a Conexão:**
-> A string de conexão deve apontar explicitamente para o banco `granada`.
-> Exemplo: `mongodb+srv://<user>:<pass>@netvisionbd.vzphu9o.mongodb.net/granada`
+
 
 ---
 
