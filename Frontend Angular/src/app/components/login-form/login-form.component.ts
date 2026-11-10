@@ -10,11 +10,13 @@
  */
 
 // --- SEÇÃO 1: IMPORTAÇÕES ---
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms'; 
 import { AuthService } from '../../services/auth.service';
+import { DEMO } from '../../demo/demo';
+import { DEMO_PASSWORD, DEMO_USER } from '../../demo/demo-api';
 
 // --- SEÇÃO 2: DEFINIÇÃO DO COMPONENTE ---
 @Component({
@@ -55,6 +57,11 @@ export class LoginFormComponent {
   public signUpMessage: string = '';
   public showSignUpPassword: boolean = false;
 
+  // --- SEÇÃO 5.1: DEMO ESTÁTICA (GitHub Pages) ---
+  public readonly demo = DEMO;
+  public readonly demoUser = DEMO_USER;
+  public readonly demoHint = 'Demo: os dados ficam só neste navegador. Não use uma senha real.';
+
   // --- SEÇÃO 6: INICIALIZAÇÃO ---
   constructor(
     private router: Router,
@@ -94,6 +101,22 @@ export class LoginFormComponent {
       });
   }
   
+  /**
+   * Login de um clique da demo: preenche a conta pública de demonstração e segue o fluxo normal.
+   */
+  public onDemoLogin(): void {
+    this.username = DEMO_USER;
+    this.password = DEMO_PASSWORD;
+    this.onLogin();
+  }
+
+  /** Esc fecha os pop-ups de cadastro e de redefinição de senha. */
+  @HostListener('document:keydown.escape')
+  public onEscape(): void {
+    if (this.showForgotPassword) this.closeForgotPassword();
+    if (this.showSignUp) this.closeSignUp();
+  }
+
   /**
    * Captura o evento de Enter no input de senha para submeter o formulário.
    */

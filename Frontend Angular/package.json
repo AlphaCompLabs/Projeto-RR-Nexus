@@ -7,8 +7,11 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-
-    "test:relatorio": "ng test --no-watch --code-coverage && node gerar-relatorio.js"
+    "test:relatorio": "ng test --no-watch --code-coverage && node gerar-relatorio.js",
+    "start:demo": "ng serve --configuration demo",
+    "test:demo": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/demo-api.test.mts",
+    "check": "node scripts/check.mts",
+    "build:pages": "npm run test:demo && ng build --configuration production,demo && node scripts/pages.mts && npm run check"
   },
   "prettier": {
     "printWidth": 100,
@@ -29,7 +32,9 @@
     "@angular/core": "^20.2.0",
     "@angular/forms": "^20.2.0",
     "@angular/platform-browser": "^20.2.0",
+    "@angular/platform-server": "^20.3.9",
     "@angular/router": "^20.2.0",
+    "@angular/ssr": "^20.3.8",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",

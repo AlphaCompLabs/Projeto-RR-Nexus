@@ -37,6 +37,7 @@ module.exports = {
         'nexus-purple-light': '#BE59BE',
         'nexus-magenta': '#EA1EF3',
         'nexus-lavender': '#B17BC5',
+        'nexus-lavender-dark': '#8E5AA3', // lavanda escurecida: contraste 5:1 com texto branco (botão LOGIN/PERFIL)
         'nexus-pink-light': '#EBA4E6',
         'nexus-pink-pale': '#FCE8ED',
         'nexus-cream': '#FFFEE3',

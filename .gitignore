@@ -1,0 +1,13 @@
+# Dependências e builds (o site publicado é docs/, que é versionado)
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+
+# Screenshots de QA local
+.shots/
+
+# Segredos: nunca versionar (Backend/.env tem a string do MongoDB)
+.env*
+!.env.example

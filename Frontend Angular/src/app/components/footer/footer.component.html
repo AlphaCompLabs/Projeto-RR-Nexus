@@ -10,7 +10,7 @@
         rel="noopener noreferrer" 
         class="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
         
-        <img src="assets/images/github.svg" alt="GitHub" class="w-12 h-12">
+        <img src="assets/images/github.webp" alt="Repositório RR Nexus no GitHub" width="144" height="144" loading="lazy" class="w-12 h-12">
       </a>
 
       <a 
@@ -19,7 +19,7 @@
         rel="noopener noreferrer" 
         class="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
         
-        <img src="assets/images/alpha-comp-labs.svg" alt="Alpha-Comp-Labs" class="w-16 h-16">
+        <img src="assets/images/alpha-comp-labs.webp" alt="AlphaCompLabs no GitHub" width="192" height="192" loading="lazy" class="w-16 h-16">
       </a>
 
     </div> 
@@ -27,6 +27,20 @@
     <p class="font-inter text-sm mt-0">
       Redes de Computadores - IESB, 2025
     </p>
+
+    <section aria-labelledby="equipe-titulo" class="w-full max-w-4xl border-t border-nexus-purple-dark pt-6">
+      <h2 id="equipe-titulo" class="font-baseet text-lg text-nexus-pink-light font-semibold text-center tracking-widest">EQUIPE ALPHACOMPLABS</h2>
+      <ul class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4 font-inter text-sm text-center">
+        @for (layer of team; track layer.name) {
+          <li>
+            <span class="block font-baseet text-nexus-pink-light">{{ layer.name }}</span>
+            @for (person of layer.people; track person) {
+              <span class="block text-nexus-lavender">{{ person }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
 
   </div> 
 </footer>

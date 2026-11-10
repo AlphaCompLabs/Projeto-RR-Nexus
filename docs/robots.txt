@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /Projeto-RR-Nexus/meu-perfil/
+
+Sitemap: https://alphacomplabs.github.io/Projeto-RR-Nexus/sitemap.xml

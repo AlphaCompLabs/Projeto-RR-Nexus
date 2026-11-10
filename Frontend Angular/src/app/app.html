@@ -1,10 +1,16 @@
 @if (isLoading) {
   <div class="fixed inset-0 bg-nexus-darkest z-50 flex items-center justify-center">
-    <img src="assets/images/logo.svg" alt="Carregando..." class="w-32 opacity-50 animate-pulse">
+    <img src="assets/images/logo-720.webp" alt="Carregando..." width="720" height="328" class="w-32 opacity-50 motion-safe:animate-pulse">
   </div>
-} 
+}
 @else {
   @if (showHeaderFooter) {
+    @if (demo) {
+      <p class="bg-nexus-purple-dark text-nexus-pink-light font-inter text-xs text-center px-4 py-2">
+        {{ demoNote }}
+        <a [href]="portfolioUrl" class="underline underline-offset-2 hover:text-nexus-magenta whitespace-nowrap">Ver no portfólio</a>
+      </p>
+    }
     <app-header></app-header>
   }
 

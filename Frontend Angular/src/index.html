@@ -1,13 +1,59 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="pt-BR" class="motion-safe:scroll-smooth">
 <head>
   <meta charset="utf-8">
-  <title>RR Nexus</title>
+  <title>RR Nexus: sessões contínuas com DNS Round Robin</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Demo do RR Nexus (AlphaCompLabs, IESB): app web em 3 camadas com DNS Round Robin e sessão centralizada que mantém o login ao trocar de servidor.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#130220">
+  <link rel="canonical" href="https://alphacomplabs.github.io/Projeto-RR-Nexus/">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preload" as="image" href="assets/images/logo.webp" imagesrcset="assets/images/logo-720.webp 720w, assets/images/logo.webp 1000w" imagesizes="(min-width: 564px) 500px, calc(100vw - 4rem)" type="image/webp" fetchpriority="high">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="RR Nexus">
+  <meta property="og:title" content="RR Nexus: sessões contínuas com DNS Round Robin">
+  <meta property="og:description" content="Demo do RR Nexus (AlphaCompLabs, IESB): app web em 3 camadas com DNS Round Robin e sessão centralizada que mantém o login ao trocar de servidor.">
+  <meta property="og:url" content="https://alphacomplabs.github.io/Projeto-RR-Nexus/">
+  <meta property="og:image" content="https://alphacomplabs.github.io/Projeto-RR-Nexus/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Logo do RR Nexus com o texto Sessões contínuas: DNS Round Robin e sessão centralizada">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "RR Nexus",
+    "alternateName": "Projeto RR-Nexus",
+    "url": "https://alphacomplabs.github.io/Projeto-RR-Nexus/",
+    "description": "Aplicação web distribuída em 3 camadas com DNS Round Robin e sessão centralizada em MongoDB. Demo estática: dados simulados no navegador.",
+    "inLanguage": "pt-BR",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "isAccessibleForFree": true,
+    "image": "https://alphacomplabs.github.io/Projeto-RR-Nexus/og.png",
+    "sameAs": ["https://github.com/AlphaCompLabs/Projeto-RR-Nexus", "https://g2portfolio.grovicdata.com/projetos/rr-nexus/"],
+    "creator": [
+      { "@type": "Person", "@id": "https://g2portfolio.grovicdata.com/#person", "name": "Gustavo Martins Gripaldi", "url": "https://g2portfolio.grovicdata.com/" },
+      { "@type": "Person", "name": "Elisa Nunes de Freitas" },
+      { "@type": "Person", "name": "Diogo Freitas" },
+      { "@type": "Person", "name": "Caio Silveira" },
+      { "@type": "Person", "name": "Mayron Malaquias" },
+      { "@type": "Person", "name": "Pedro Borges" }
+    ],
+    "publisher": { "@type": "Organization", "name": "AlphaCompLabs", "url": "https://github.com/AlphaCompLabs" }
+  }
+  </script>
 </head>
-<body>
+<body class="bg-nexus-darkest">
   <app-root></app-root>
+  <noscript>
+    <p style="color:#FCE8ED;font-family:sans-serif;padding:2rem;text-align:center">O RR Nexus precisa de JavaScript para funcionar.</p>
+  </noscript>
 </body>
 </html>

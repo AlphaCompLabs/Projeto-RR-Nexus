@@ -40,19 +40,13 @@ O Frontend é responsável pela interação com o usuário, validação visual d
 git clone https://github.com/AlphaCompLabs/Projeto-RR-Nexus.git
 ```
 
-### 2. Acessar a Branch de Desenvolvimento
-
-```bash
-git checkout dev
-```
-
-### 3. Navegar para a Pasta do Frontend
+### 2. Navegar para a Pasta do Frontend
 
 ```bash
 cd "Projeto-RR-Nexus/Frontend Angular"
 ```
 
-### 4. Instalar Dependências
+### 3. Instalar Dependências
 
 ```bash
 npm install

@@ -50,7 +50,9 @@ export class HeaderComponent implements OnDestroy {
    * Chamado pelo botão "LOGIN" (quando usuário NÃO está logado).
    * Realiza a rolagem suave da página até a seção do formulário de login.
    */
-  public scrollToLogin(): void {
+  public scrollToLogin(event?: Event | null): void {
+    // O href "#login-form-section" é o fallback acessível; aqui o scroll fica com o Angular
+    event?.preventDefault();
     this.scroller.scrollToAnchor('login-form-section');
   }
 

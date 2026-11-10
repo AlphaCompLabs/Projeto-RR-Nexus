@@ -3,20 +3,24 @@
 import { ApplicationConfig } from '@angular/core';
 
 // 1. IMPORTE O 'provideHttpClient'
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
-import { 
-  provideRouter, 
-  withInMemoryScrolling 
+import {
+  provideRouter,
+  UrlSerializer,
+  withInMemoryScrolling
 } from '@angular/router';
 import { routes } from './app.routes';
+import { DEMO, demoInterceptor } from './demo/demo';
+import { TrailingSlashSerializer } from './shared/trailing-slash';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    
+
     // 2. ADICIONE O 'provideHttpClient()' AQUI
     // (Isto "liga" o HttpClient em toda a sua aplicação)
-    provideHttpClient(), 
+    // Na demo estática, o interceptor responde no lugar do backend (src/app/demo/).
+    provideHttpClient(withInterceptors(DEMO ? [demoInterceptor] : [])),
 
     // O seu provider de rotas (que já cá estava)
     provideRouter(
@@ -25,6 +29,9 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'top'
       })
-    )
+    ),
+
+    // URLs com barra final (/meu-perfil/): o GitHub Pages responde 301 sem ela.
+    { provide: UrlSerializer, useClass: TrailingSlashSerializer }
   ]
 };

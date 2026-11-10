@@ -18,6 +18,7 @@ import { filter } from 'rxjs/operators';
 import { HeaderComponent } from './components/header/header.component'; 
 import { FooterComponent } from './components/footer/footer.component';
 import { AuthService } from './services/auth.service';
+import { DEMO, DEMO_NOTE, PORTFOLIO_URL } from './demo/demo';
 
 // --- SEÇÃO 2: DEFINIÇÃO DO COMPONENTE ---
 @Component({
@@ -40,6 +41,11 @@ export class App implements OnInit {
   /** Controla a tela de carregamento inicial (Splash Screen) */
   public isLoading: boolean = true;
 
+  /** Demo estática (GitHub Pages): mostra a faixa de aviso */
+  public readonly demo = DEMO;
+  public readonly demoNote = DEMO_NOTE;
+  public readonly portfolioUrl = PORTFOLIO_URL;
+
   // --- SEÇÃO 4: INICIALIZAÇÃO ---
   constructor(
     private router: Router, 
@@ -49,7 +55,8 @@ export class App implements OnInit {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      if (event.url === '/meu-perfil') {
+      // startsWith: com o TrailingSlashSerializer a URL é '/meu-perfil/'
+      if (event.urlAfterRedirects.startsWith('/meu-perfil')) {
         this.showHeaderFooter = false;
       } else {
         this.showHeaderFooter = true; 

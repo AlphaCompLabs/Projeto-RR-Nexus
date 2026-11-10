@@ -28,5 +28,11 @@ import { Component } from '@angular/core';
   styleUrl: './footer.component.css',
 })
 export class FooterComponent {
-  // Nenhuma lógica interna necessária para este componente visual.
+  /** Equipe por camada, como nos READMEs de cada módulo (Database, Backend, Frontend Angular, Network). */
+  public readonly team = [
+    { name: 'Banco de Dados', people: ['Gustavo Martins Gripaldi'] },
+    { name: 'Backend', people: ['Diogo Freitas', 'Caio Silveira'] },
+    { name: 'Frontend', people: ['Elisa Nunes de Freitas'] },
+    { name: 'Redes', people: ['Mayron Malaquias', 'Pedro Borges'] },
+  ];
 }

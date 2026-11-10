@@ -66,6 +66,9 @@ export class MiddleComponent implements OnInit, OnDestroy {
    * - 100% visível -> Opacidade 0 (Transparente/Visível)
    */
   private setupObserver() {
+    // Não existe no pré-render da demo (Node): a seção sai escura e o navegador assume
+    if (typeof IntersectionObserver === 'undefined') return;
+
     const options = {
       root: null, // Observa em relação ao viewport do navegador
       // Array de thresholds para suavizar a transição

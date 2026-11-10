@@ -13,6 +13,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { DEMO, DEMO_NOTE, PORTFOLIO_URL } from '../../demo/demo';
 
 // --- SEÇÃO 2: DEFINIÇÃO DO COMPONENTE ---
 @Component({
@@ -39,5 +40,18 @@ export class SidebarComponent {
    */
   public logout(): void {
     this.authService.logout().subscribe();
+  }
+
+  // --- SEÇÃO 5: DEMO ESTÁTICA (GitHub Pages) ---
+  public readonly demo = DEMO;
+  public readonly demoNote = DEMO_NOTE;
+  public readonly portfolioUrl = PORTFOLIO_URL;
+
+  /**
+   * Recarrega a página: o app sobe de novo, o DNS simulado entrega o próximo servidor
+   * HTTP e a sessão centralizada mantém o login (o mesmo teste do F5 nas VMs).
+   */
+  public reload(): void {
+    location.reload();
   }
 }

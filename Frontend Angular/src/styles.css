@@ -13,14 +13,14 @@
 /* 1.0 Fonte do projeto ------------------------------------------- */
 @font-face {
   font-family: 'Inter';
-  src: url('assets/fonts/Inter.ttf') format('truetype');
+  src: url('assets/fonts/Inter.woff') format('woff'); /* subset latino, peso 400 (o único declarado) */
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Baseet';
-  src: url('assets/fonts/Baseet.ttf') format('truetype');
+  src: url('assets/fonts/Baseet.woff') format('woff'); /* subset latino */
   font-weight: normal;
   font-style: normal;
 }

@@ -222,6 +222,8 @@ export class AuthService {
   // --- SEÇÃO 11: HELPERS (STORAGE) ---
 
   public getToken(): string | null {
+    // Sem localStorage no pré-render da demo (Node): a página inicial sai no estado "deslogado"
+    if (typeof localStorage === 'undefined') return null;
     return localStorage.getItem(this.SESSION_KEY);
   }
 

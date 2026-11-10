@@ -1,37 +1,37 @@
-<header class="h-screen bg-header-gradient text-nexus-cream flex flex-col p-8 md:p-12 relative overflow-hidden">
+<header class="min-h-screen md:h-screen bg-header-gradient text-nexus-cream flex flex-col p-8 md:p-12 relative overflow-hidden">
 
-  <img src="assets/images/network.svg" alt="" class="absolute top-32 left-0 w-1/3 md:w-1/4 z-0 opacity-30">
-  <img src="assets/images/network.svg" alt="" class="absolute top-0 right-0 w-1/3 md:w-1/4 z-0 opacity-30 flip-horizontal">
+  <img src="assets/images/network.webp" alt="" fetchpriority="low" class="absolute top-32 left-0 w-1/3 md:w-1/4 z-0 opacity-30">
+  <img src="assets/images/network.webp" alt="" fetchpriority="low" class="absolute top-0 right-0 w-1/3 md:w-1/4 z-0 opacity-30 flip-horizontal">
 
-  
+
   <nav class="w-full flex justify-end z-10">
 
     @if (isLoggedIn) {
-      <button (click)="navigateToProfile()" class="bg-nexus-lavender text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-baseet font-semibold">
+      <button type="button" (click)="navigateToProfile()" class="bg-nexus-lavender-dark text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-baseet font-semibold">
         <span>PERFIL</span>
-        <img src="/assets/images/perfil-white.svg" alt="Ícone de Perfil" class="w-4 h-4">
+        <img src="assets/images/perfil-white.svg" alt="" class="w-4 h-4">
       </button>
     } @else {
-      <a href="javascript:void(0)" (click)="scrollToLogin()" class="bg-nexus-lavender text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-baseet font-semibold no-underline">
+      <a href="#login-form-section" (click)="scrollToLogin($event)" class="bg-nexus-lavender-dark text-white py-2 px-3 rounded-lg flex items-center space-x-2 hover:bg-nexus-purple transition-colors duration-300 font-baseet font-semibold no-underline">
         <span>LOGIN</span>
-        <img src="/assets/images/perfil-white.svg" alt="Ícone de Login" class="w-4 h-4">
+        <img src="assets/images/perfil-white.svg" alt="" class="w-4 h-4">
       </a>
     }
 
   </nav>
 
-  
-  <main class="flex-grow flex flex-col justify-center items-center z-20">
-    
-    <div class="text-center -translate-y-24">
-      <img src="/assets/images/logo.svg" alt="Logo RR-Nexus" class="w-[500px] mx-auto">
+
+  <div class="flex-grow flex flex-col justify-center items-center z-20">
+
+    <div class="text-center -translate-y-6 md:-translate-y-24">
+      <h1><img src="assets/images/logo.webp" srcset="assets/images/logo-720.webp 720w, assets/images/logo.webp 1000w" sizes="(min-width: 564px) 500px, calc(100vw - 4rem)" alt="RR Nexus" width="1000" height="455" fetchpriority="high" class="w-[500px] max-w-full mx-auto"></h1>
       <p class="font-inter text-base md:text-lg text-white font-bold tracking-widest mt-0">SESSÕES CONTÍNUAS</p>
     </div>
 
-    <section class="flex flex-col md:flex-row items-center justify-center md:gap-x-10 w-full max-w-6xl mt-8 md:mt-12 mx-auto -translate-y-20">
-      
+    <section class="flex flex-col md:flex-row items-center justify-center md:gap-x-10 w-full max-w-6xl mt-4 md:mt-12 mx-auto md:-translate-y-20">
+
       <div class="w-full md:w-1/3 flex justify-center">
-        <img src="assets/images/round-robin.svg" alt="Diagrama Round Robin" class="w-full max-w-[14rem]">
+        <img src="assets/images/round-robin.webp" alt="Diagrama Round Robin" width="448" height="448" class="w-full max-w-[14rem]">
       </div>
 
       <div class="w-full md:w-2/3 max-w-xl mt-10 md:mt-10 relative">
@@ -40,19 +40,19 @@
 
           <div class="flex items-center space-x-3 absolute -top-4 left-6 z-10">
             <h2 class="font-baseet text-xl md:text-2xl text-nexus-pink-light font-semibold">CONHEÇA NOSSO PROJETO</h2>
-            <img src="assets/images/seta.svg" alt="Seta" class="w-10">
+            <img src="assets/images/seta.webp" alt="" width="160" height="73" class="w-10">
           </div>
 
-          <p class="text-white leading-relaxed font-inter text-sm text-justify">
+          <p class="text-white leading-relaxed font-inter text-sm md:text-justify">
             Este projeto demonstra uma arquitetura de aplicação web distribuída, projetada para escalabilidade e alta disponibilidade. O sistema utiliza balanceamento de carga via DNS Round Robin (RR DNS) para distribuir as requisições de usuários entre três servidores de aplicação distintos.
           </p>
-          <p class="mt-4 text-white leading-relaxed font-inter text-sm text-justify">
+          <p class="mt-4 text-white leading-relaxed font-inter text-sm md:text-justify">
             A solução implementa um mecanismo de sessão centralizada para resolver o desafio de estado. Isso garante que o usuário permaneça autenticado independentemente de qual servidor o balanceador DNS direcione sua conexão.
           </p>
 
-        </div> 
+        </div>
       </div>
 
     </section>
-  </main>
+  </div>
 </header>

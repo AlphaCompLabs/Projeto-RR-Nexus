@@ -26,6 +26,7 @@
               {
                 "glob": "**/*",
                 "input": "src/assets",
+                "ignore": ["fonts/**"],
                 "output": "/assets/"
               }
             ],
@@ -53,6 +54,14 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "demo": {
+              "baseHref": "/Projeto-RR-Nexus/",
+              "define": {
+                "DEMO_API": "true"
+              },
+              "server": "src/main.server.ts",
+              "outputMode": "static"
             }
           },
           "defaultConfiguration": "production"
@@ -70,6 +79,9 @@
             },
             "development": {
               "buildTarget": "projeto-rr-nexus:build:development"
+            },
+            "demo": {
+              "buildTarget": "projeto-rr-nexus:build:development,demo"
             }
           },
           "defaultConfiguration": "development"

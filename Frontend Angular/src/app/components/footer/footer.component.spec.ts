@@ -69,8 +69,8 @@ describe('FooterComponent', () => {
     // Esperamos 2 imagens (os logos)
     expect(images.length).toBe(2);
 
-    expect(images[0].nativeElement.getAttribute('src')).toContain('assets/images/github.svg');
-    expect(images[1].nativeElement.getAttribute('src')).toContain('assets/images/alpha-comp-labs.svg');
+    expect(images[0].nativeElement.getAttribute('src')).toContain('assets/images/github.webp');
+    expect(images[1].nativeElement.getAttribute('src')).toContain('assets/images/alpha-comp-labs.webp');
   });
 
   /**

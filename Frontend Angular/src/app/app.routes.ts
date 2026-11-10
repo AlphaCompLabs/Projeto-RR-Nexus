@@ -18,11 +18,17 @@ import { AuthGuard } from './guards/auth-guard';
 export const routes: Routes = [
   {
     path: '',
-    component: LoginPage
+    component: LoginPage,
+    title: 'RR Nexus: sessões contínuas com DNS Round Robin'
   },
   {
     path: 'meu-perfil',
     component: ProfilePage,
-    canActivate: [AuthGuard] // Protege a rota de perfil
+    canActivate: [AuthGuard], // Protege a rota de perfil
+    title: 'Meu perfil | RR Nexus'
+  },
+  {
+    path: '**',
+    redirectTo: ''
   }
 ];

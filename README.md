@@ -6,7 +6,7 @@
   <p>
     <strong><h3>Tecnologias Utilizadas:</h3></strong>
     <div style="height: 5px;"></div>
-    <img src="https://img.shields.io/badge/Frontend-Angular_18-EA1EF3?style=for-the-badge&logo=angular&logoColor=white" alt="Angular">
+    <img src="https://img.shields.io/badge/Frontend-Angular_20-EA1EF3?style=for-the-badge&logo=angular&logoColor=white" alt="Angular">
     &nbsp;&nbsp;&nbsp;
     <img src="https://img.shields.io/badge/Styling-Tailwind_CSS-EA1EF3?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind">
     <br><br>
@@ -26,6 +26,10 @@
   <p>
     Redes de Computadores - IESB 2025
   </p>
+
+  <p>
+    <a href="https://alphacomplabs.github.io/Projeto-RR-Nexus/"><strong>Abrir a demo ao vivo</strong></a> (demo estática para portfólio: dados simulados no navegador)
+  </p>
 </div>
 </html><br>
 
@@ -43,6 +47,50 @@ O objetivo central é demonstrar como manter a persistência de sessão do usuá
 * Configuração de servidor DNS com estratégia Round Robin.
 * Resolução do problema de "Sessão Desconectada" em ambientes distribuídos sem uso de *sticky sessions*.
 * Monitoramento e identificação do servidor respondente (hostname).
+
+---
+
+## 🌐 Demo ao vivo (estática)
+
+**https://alphacomplabs.github.io/Projeto-RR-Nexus/**
+
+Versão de portfólio que roda inteira no GitHub Pages, sem VMs, backend ou MongoDB: **os dados são simulados no navegador**. O visual, as telas e o fluxo são os do frontend original; o que muda é quem responde às requisições.
+
+**Como testar:** clique em **ENTRAR COM CONTA DEMO** (usuário `visitante`, sem senha real) ou crie uma conta em "Cadastre-se aqui". No perfil, recarregue a página (F5 ou o botão **RECARREGAR (TROCAR DE SERVIDOR)**): o campo **Servidor** alterna entre `HTTP-01`, `HTTP-02` e `HTTP-03`, como o DNS Round Robin faria, e o **Código da Sessão** continua o mesmo, porque a sessão é centralizada.
+
+### Como a simulação funciona
+
+* O `AuthService` do frontend continua igual: ele chama `http://172.19.50.25/api/auth/*` e `http://www.meutrabalho.com.br/lb-ping`, como nas VMs.
+* No build `demo`, um `HttpInterceptor` (`Frontend Angular/src/app/demo/demo.ts`) responde essas chamadas sem sair do navegador. A lógica fica em `demo-api.ts`, um espelho das rotas Express de `Backend/routes/auth.js` e `Backend/controllers/authController.js`: mesmos status HTTP, mesmos campos de resposta e mesmas mensagens de erro.
+  * `POST /api/auth/login`, `/register`, `/reset-password`, `GET /api/auth/session/validate`, `POST /api/auth/logout`.
+  * Política de sessão única, expiração de 1 hora e a limpeza do índice TTL da coleção `sessoes`.
+  * Senhas guardadas com hash (PBKDF2 do WebCrypto, no papel do bcrypt) e sal por usuário.
+* `GET /lb-ping` imita o Nginx do mapa de rede: devolve `X-Server-Name` com o próximo servidor HTTP da rodada.
+* As coleções `usuarios` e `sessoes` viram um JSON no `localStorage` (`rr-nexus-demo-db`), que começa com a conta demo e duas contas de senha desconhecida (`admin`, `professor`). Para recomeçar do zero, limpe os dados do site no navegador.
+* Diferenças deliberadas, marcadas no código: campos que não são texto (ou passam de 128 caracteres) viram 400, onde o Express daria 500; a senha da conta demo não pode ser redefinida (403), para o login de um clique continuar funcionando.
+* A página inicial é pré-renderizada (HTML pronto, com os créditos visíveis antes do JavaScript); `/meu-perfil/` roda só no navegador, com uma cópia `noindex` do app para o recarregamento responder 200.
+
+### Rodar localmente
+
+```bash
+cd "Frontend Angular"
+npm ci
+
+# Demo (API simulada no navegador): http://localhost:4200/Projeto-RR-Nexus/
+npm run start:demo
+
+# Testes da API simulada (contrato do backend, Node 22.18+)
+npm run test:demo
+
+# Build publicado: testes + build + cópia para docs/ + checagens (SEO, caminhos, travessão)
+npm run build:pages
+```
+
+O GitHub Pages publica a pasta `docs/` da branch `main`. `docs/` é saída de build: não edite à mão.
+
+### Stack real (VMs), sem simulação
+
+Nada mudou para o ambiente da avaliação: `npm start` (`ng serve`) e `ng build` no `Frontend Angular/` continuam falando com o backend real, e o `Backend/` não foi alterado. Siga a ordem da seção abaixo (Banco, Redes, Backend, Frontend) e os READMEs de cada módulo. O backend precisa de um `Backend/.env` com `PORT` e `MONGO_CONNECTION_STRING` (nunca versionado).
 
 ---
 
@@ -105,6 +153,28 @@ Após ativar os componentes individuais conforme os links acima:
 
 ---
 
+## 👥 Equipe AlphaCompLabs
+
+| Camada | Integrantes |
+| :--- | :--- |
+| 🗄️ Banco de Dados | [Gustavo Martins Gripaldi](https://github.com/G2Martins) ([portfólio](https://g2portfolio.grovicdata.com/projetos/rr-nexus/)) |
+| ⚙️ Backend | [Diogo Freitas](https://github.com/DX1ONE) e [Caio Silveira](https://github.com/Caiorem) |
+| 💻 Frontend | [Elisa Nunes de Freitas](https://github.com/elisanuness) |
+| 📡 Redes | [Mayron Malaquias](https://github.com/Mayronmalaquias) e [Pedro Borges](https://github.com/Pedrobrgss) |
+
+Autoria conforme os READMEs de cada módulo. A demo estática para portfólio (simulação no navegador, pré-render, ajustes de responsividade, acessibilidade e desempenho) foi feita por Gustavo Martins Gripaldi em 2026, sobre o frontend da Elisa.
+
+---
+
+## ⚠️ Itens conhecidos
+
+* **Documentação Swagger do backend não incorporada.** Ela está na tag `archive/backend` (antiga branch `backend`) e não entrou na `main` porque a estrutura de pastas daquela branch conflita com a atual. Para recuperar: `git checkout archive/backend -- <arquivos>` e ajustar os caminhos.
+* **`POST /api/auth/reset-password` não exige autenticação** no backend real: qualquer pessoa redefine a senha de qualquer usuário sabendo só o nome. A demo espelha esse comportamento (só protege a conta demo). Antes de uso real: exigir sessão válida ou um token de redefinição.
+* **Endereços fixos no frontend:** `API_URL` e `HOST_URL` do `AuthService` apontam para os IPs e o domínio das VMs da avaliação.
+* **Versão anterior à demo:** a tag local `v1-pre-demo` marca o estado antes destas mudanças (inclui os SVGs e fontes originais, trocados por WebP e WOFF menores).
+
+---
+
 ## 🤝 Padrões de Contribuição
 
 Para garantir a qualidade e consistência do código entre as equipes, seguimos regras estritas.
@@ -115,7 +185,7 @@ Para garantir a qualidade e consistência do código entre as equipes, seguimos 
 * ✅ **Logs:** Uso de logging estruturado.
 
 Antes de abrir um Pull Request, leia o guia completo:
-👉 [**CODING_STANDARDS.md**](./CODING_STANDARDS.md)
+👉 [**CODING_STANDARTS.md**](./CODING_STANDARTS.md)
 
 ---
 

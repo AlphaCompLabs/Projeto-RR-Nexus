@@ -1,11 +1,12 @@
-<div class="flex h-screen w-full">
-  
-  <div class="w-1/4 bg-nexus-darkest">
-    <app-sidebar></app-sidebar>
-  </div>
+<!-- Desktop: menu à esquerda (row-reverse). Celular: dados do perfil primeiro, menu embaixo. -->
+<div class="flex flex-col md:flex-row-reverse md:h-screen w-full">
 
-  <div class="w-3/4 bg-profile-gradient">
+  <main class="w-full md:w-3/4 bg-profile-gradient">
     <app-profile-form></app-profile-form>
-  </div>
+  </main>
+
+  <aside class="w-full md:w-1/4 bg-nexus-darkest">
+    <app-sidebar></app-sidebar>
+  </aside>
 
 </div>
