@@ -61,7 +61,7 @@ npm install
 PORT=3000
 
 # Connection String do  cluster MongoDB
-MONGO_CONNECTION_STRING="mongodb+srv://backendDiogo:ugEMdOkX1q6PhFVp@netvisionbd.vzphu9o.mongodb.net/granada"
+MONGO_CONNECTION_STRING="mongodb+srv://<usuario>:<senha>@netvisionbd.vzphu9o.mongodb.net/granada"
 ```
 
 ## 🏃 Como Rodar
